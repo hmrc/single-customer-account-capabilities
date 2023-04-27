@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.singlecustomeraccountcapabilities.config
+package uk.gov.hmrc.singlecustomeraccountcapabilities.models
 
-import com.google.inject.AbstractModule
+import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.auth.core.Nino
 
-class Module extends AbstractModule {
 
-  override def configure(): Unit = {
+case class IfCapabilityDetails(
+                                nino: Nino,
+                                date: String,
+                                descriptionContent: String,
+                                url: String
+                                )
 
-    bind(classOf[AppConfig]).asEagerSingleton()
-  }
+object IfCapabilityDetails {
+
+  implicit val format: Format[IfCapabilityDetails] = Json.format[IfCapabilityDetails]
+
 }

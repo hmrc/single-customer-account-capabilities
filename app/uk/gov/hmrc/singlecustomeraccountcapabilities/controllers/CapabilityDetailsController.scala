@@ -16,16 +16,21 @@
 
 package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
 
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
+import scala.concurrent.ExecutionContext
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
 
 @Singleton()
-class MicroserviceHelloWorldController @Inject()(cc: ControllerComponents)
-    extends BackendController(cc) {
+class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesConnector, cc: ControllerComponents)(implicit ec: ExecutionContext)
+  extends BackendController(cc) {
 
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
+  def getCapabilitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
+    capabilitiesConnector.find(nino) match {
+      case data => Ok(data)
+      case _ => NotFound
+    }
+    }
+
   }
-}
