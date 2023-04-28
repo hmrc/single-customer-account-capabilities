@@ -26,8 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class CapabilitiesConnector @Inject()(appConfig: AppConfig, http: HttpClient)(implicit
                                                                               val ec: ExecutionContext
 ) {
-
-  val endpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/details/NINO:"
+  val endpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/details/NINO/"
 
   def find(nino: String)(implicit
                                                             hc: HeaderCarrier
