@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
+package uk.gov.hmrc.singlecustomeraccountcapabilities.models
 
-import play.api.Logging
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.auth.core.Nino
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
 
-@Singleton()
-class MicroserviceHelloWorldController @Inject()(cc: ControllerComponents)
-  extends BackendController(cc) with Logging {
+case class IfCapabilityDetails(
+                                nino: Nino,
+                                date: String,
+                                descriptionContent: String,
+                                url: String
+                                )
 
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    logger.info(request.uri)
-    Future.successful(Ok("Hello world"))
-  }
+object IfCapabilityDetails {
+
+  implicit val format: Format[IfCapabilityDetails] = Json.format[IfCapabilityDetails]
+
 }
