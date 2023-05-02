@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package uk.gov.hmrc.singlecustomeraccountcapabilities.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.matchers.must.Matchers

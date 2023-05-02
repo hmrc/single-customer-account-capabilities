@@ -26,7 +26,8 @@ import scala.concurrent.ExecutionContext
 
 
 @Singleton()
-class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesConnector, cc: ControllerComponents)
+class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesConnector,
+                                            cc: ControllerComponents)
                                            (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   def getCapabilitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
