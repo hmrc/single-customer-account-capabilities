@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.singlecustomeraccountcapabilities.connectors
 
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.singlecustomeraccountcapabilities.config.AppConfig
 import uk.gov.hmrc.singlecustomeraccountcapabilities.models.IfCapabilityDetails
@@ -23,14 +24,12 @@ import uk.gov.hmrc.singlecustomeraccountcapabilities.models.IfCapabilityDetails
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CapabilitiesConnector @Inject()(appConfig: AppConfig, http: HttpClient)(implicit
-                                                                              val ec: ExecutionContext
-) {
+class CapabilitiesConnector @Inject()(appConfig: AppConfig, http: HttpClient)
+                                     (implicit val ec: ExecutionContext) {
 
-  private val endpoint = s"${appConfig.capabilitiesDataBaseUrl}/single-customer-account-stub/individuals/details/NINO/"
+  private val endpoint = s"${appConfig.capabilitiesDataBaseUrl}/single-customer-account-stub/individuals/details/NINO/%s"
 
   def find(nino: String)(implicit hc: HeaderCarrier): Future[Option[IfCapabilityDetails]] = {
-    val url = endpoint + nino
-    http.GET[Option[IfCapabilityDetails]](url)
+    http.GET[Option[IfCapabilityDetails]](endpoint.format(nino))
   }
 }

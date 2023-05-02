@@ -16,16 +16,19 @@
 
 package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
 
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton()
 class MicroserviceHelloWorldController @Inject()(cc: ControllerComponents)
-    extends BackendController(cc) {
+  extends BackendController(cc) with Logging {
 
   def hello(): Action[AnyContent] = Action.async { implicit request =>
+    logger.info(request.uri)
     Future.successful(Ok("Hello world"))
   }
 }

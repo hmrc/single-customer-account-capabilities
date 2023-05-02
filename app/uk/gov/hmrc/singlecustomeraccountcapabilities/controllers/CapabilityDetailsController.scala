@@ -26,19 +26,14 @@ import scala.concurrent.ExecutionContext
 
 
 @Singleton()
-class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesConnector, cc: ControllerComponents)(implicit ec: ExecutionContext)
-  extends BackendController(cc) {
-
+class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesConnector, cc: ControllerComponents)
+                                           (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   def getCapabilitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
-
-    capabilitiesConnector.find(nino).map{
-       {
-        case Some(capabilityDetail) => Ok(Json.toJson(capabilityDetail))
-        case _ => NotFound
-      }
+    capabilitiesConnector.find(nino).map {
+      case Some(capabilityDetail) => Ok(Json.toJson(capabilityDetail))
+      case _ => NotFound
     }
-
-    }
-
   }
+
+}

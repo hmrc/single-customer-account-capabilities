@@ -1,14 +1,22 @@
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 
-lazy val microservice = Project("single-customer-account-capabilities", file("."))
+val appName: String = "single-customer-account-capabilities"
+
+lazy val microservice = Project(appName, file("."))
+  .disablePlugins(JUnitXmlReportPlugin)
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
+    name := appName,
+    PlayKeys.playDefaultPort := 8423,
     majorVersion        := 0,
     scalaVersion        := "2.13.8",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
-    // suppress warnings in generated routes files
+    scalacOptions ++= Seq("-feature", "-Xfatal-warnings", "-deprecation"),
     scalacOptions += "-Wconf:src=routes/.*:s",
+    retrieveManaged := true,
+    resolvers ++= Seq(
+      Resolver.jcenterRepo
+    )
   )
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
