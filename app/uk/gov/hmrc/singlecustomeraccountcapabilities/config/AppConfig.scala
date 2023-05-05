@@ -25,5 +25,5 @@ class AppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig)
 
   val appName: String = config.get[String]("appName")
 
-  val capabilitiesDataBaseUrl: String = servicesConfig.baseUrl(serviceName = "capabilitiesData")
+  val capabilitiesDataBaseUrl: String = servicesConfig.baseUrl(serviceName = "sca-capabilities")
 }

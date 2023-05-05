@@ -24,7 +24,6 @@ import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.HttpClientSupport
-import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
 import uk.gov.hmrc.singlecustomeraccountcapabilities.models.IfCapabilityDetails
 import utils.WireMockHelper
 
@@ -35,7 +34,7 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 
-  override protected def portConfigKeys: String = "microservice.services.capabilitiesData.port"
+  override protected def portConfigKeys: String = "microservice.services.sca-capabilities.port"
 
   private lazy val capabilitiesConnector: CapabilitiesConnector = injector.instanceOf[CapabilitiesConnector]
 
@@ -88,5 +87,5 @@ object CapabilitiesConnectorSpec {
     descriptionContent = "Your tax code has changed",
     url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
 
-  private val capabilityDetailsUrl = s"/single-customer-account-stub/individuals/details/NINO/$nino"
+  private val capabilityDetailsUrl = s"/individuals/details/NINO/$nino"
 }
