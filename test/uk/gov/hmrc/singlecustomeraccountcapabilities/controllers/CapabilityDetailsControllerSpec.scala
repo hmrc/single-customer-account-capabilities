@@ -92,7 +92,7 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
       val result = controller.getCapabilitiesData("invalid-nino")(fakeRequest)
 
       whenReady(result) { _ =>
-        status(result) mustBe NOT_FOUND
+        status(result) mustBe NO_CONTENT
       }
 
     }
