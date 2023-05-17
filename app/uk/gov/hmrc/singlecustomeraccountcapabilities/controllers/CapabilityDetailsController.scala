@@ -33,7 +33,7 @@ class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesC
   def getCapabilitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
     capabilitiesConnector.find(nino).map {
       case Some(capabilityDetail) => Ok(Json.toJson(capabilityDetail))
-      case _ => NotFound
+      case _ => NoContent
     }
   }
 
