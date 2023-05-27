@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
+package utils
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.http.Status
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.utils.DateHelper
 
-class MicroserviceHelloWorldControllerSpec extends AnyWordSpec with Matchers {
+import java.time.LocalDate
 
-  private val fakeRequest = FakeRequest("GET", "/")
-  private val controller = new MicroserviceHelloWorldController(Helpers.stubControllerComponents())
+class DateHelperSpec extends AnyWordSpec with Matchers {
 
-  "GET /" should {
-    "return 200" in {
-      val result = controller.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
+  "today " should {
+
+    "return localDate now as default" in {
+      DateHelper.today shouldBe LocalDate.now()
+    }
+
+    "return the specialDate" in {
+      val specialDate = LocalDate.of(2023, 10, 29)
+      DateHelper.setDate(Some(specialDate))
+      DateHelper.today shouldBe specialDate
     }
   }
 }

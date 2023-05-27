@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
+package uk.gov.hmrc.singlecustomeraccountcapabilities.utils
 
-import play.api.Logging
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import java.time.LocalDate
+import java.util.concurrent.atomic.AtomicReference
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+object DateHelper {
 
-@Singleton()
-class MicroserviceHelloWorldController @Inject()(cc: ControllerComponents)
-  extends BackendController(cc) with Logging {
+  private val mockDate: AtomicReference[Option[LocalDate]] = new AtomicReference(None)
 
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    logger.info(request.uri)
-    Future.successful(Ok("Hello world"))
-  }
+  def today: LocalDate = mockDate.get().getOrElse(LocalDate.now())
+
+  def setDate(date: Option[LocalDate]): Unit = mockDate.set(date)
 }

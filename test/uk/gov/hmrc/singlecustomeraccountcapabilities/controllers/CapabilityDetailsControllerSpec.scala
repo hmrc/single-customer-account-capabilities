@@ -18,7 +18,7 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
 
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.{reset, when}
-import org.scalatest.BeforeAndAfter
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -30,21 +30,22 @@ import play.api.test.Helpers._
 import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.IfCapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.service.CapabilityDetailsService
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val fakeRequest = FakeRequest("GET", "/")
-  private val mockCapabilitiesConnector: CapabilitiesConnector = mock[CapabilitiesConnector]
+  private val mockCapabilitiesService: CapabilityDetailsService = mock[CapabilityDetailsService]
 
   val modules: Seq[GuiceableModule] =
     Seq(
-      inject.bind[CapabilitiesConnector].toInstance(mockCapabilitiesConnector)
+      inject.bind[CapabilityDetailsService].toInstance(mockCapabilitiesService)
     )
 
   val application: Application = new GuiceApplicationBuilder()
@@ -53,46 +54,66 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
 
   private val controller = application.injector.instanceOf[CapabilityDetailsController]
 
-  before {
-    reset(mockCapabilitiesConnector)
+  override protected def beforeEach(): Unit = {
+    reset(mockCapabilitiesService)
+    super.beforeEach()
   }
 
   "GET /" must {
     "return 200" in {
 
-      val capabilityDetails = IfCapabilityDetails(
-        nino = Nino(true, Some("GG012345C")),
-        date = "9 April 2023",
-        descriptionContent = "Your tax code has changed",
-        url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
+      val capabilityDetails: Seq[CapabilityDetails] = Seq(
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2022, 5, 19),
+          descriptionContent = "Desc-1",
+          url = "url-1"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 9),
+          descriptionContent = "Desc-2",
+          url = "url-2")
+      )
 
-      when(mockCapabilitiesConnector.find(anyString())(any())).thenReturn(Future.successful(Some(capabilityDetails)))
+      when(mockCapabilitiesService.retrieveCapabilitiesData(anyString())(any(), any())).thenReturn(Future.successful(capabilityDetails))
 
       val result = controller.getCapabilitiesData("valid-nino")(fakeRequest)
 
       whenReady(result) { _ =>
         status(result) mustBe OK
-        contentAsJson(result) mustBe Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
+        contentAsJson(result) mustBe Json.arr(
+          Json.obj(
+            "nino" -> Json.obj(
+              "hasNino" -> true,
+              "nino" -> "GG012345C"
+            ),
+            "date" -> "2022-05-19",
+            "descriptionContent" -> "Desc-1",
+            "url" -> "url-1"
           ),
-          "date" -> "9 April 2023",
-          "descriptionContent" -> "Your tax code has changed",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          Json.obj(
+            "nino" -> Json.obj(
+              "hasNino" -> true,
+              "nino" -> "GG012345C"
+            ),
+            "date" -> "2023-04-09",
+            "descriptionContent" -> "Desc-2",
+            "url" -> "url-2"
+          )
         )
       }
 
     }
 
-    "return Not Found When nino is not valid" in {
+    "return Empty List When capabilities not found with the nino" in {
 
-      when(mockCapabilitiesConnector.find(anyString())(any())).thenReturn(Future.successful(None))
+      when(mockCapabilitiesService.retrieveCapabilitiesData(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
 
       val result = controller.getCapabilitiesData("invalid-nino")(fakeRequest)
 
       whenReady(result) { _ =>
-        status(result) mustBe NO_CONTENT
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.arr()
       }
 
     }

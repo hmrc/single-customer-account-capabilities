@@ -19,17 +19,19 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.connectors
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.singlecustomeraccountcapabilities.config.AppConfig
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.IfCapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CapabilitiesConnector @Inject()(appConfig: AppConfig, http: HttpClient)
-                                     (implicit val ec: ExecutionContext) {
+class CapabilitiesConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
 
   private val endpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/details/NINO/%s"
 
-  def find(nino: String)(implicit hc: HeaderCarrier): Future[Option[IfCapabilityDetails]] = {
-    http.GET[Option[IfCapabilityDetails]](endpoint.format(nino))
+  def list(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+    http.GET[Option[Seq[CapabilityDetails]]](endpoint.format(nino)).map {
+      case Some(capabilityDetails) => capabilityDetails
+      case _ => Seq.empty
+    }
   }
 }
