@@ -27,6 +27,7 @@ class DateHelperSpec extends AnyWordSpec with Matchers {
   "today " should {
 
     "return localDate now as default" in {
+      DateHelper.setDate(None)
       DateHelper.today shouldBe LocalDate.now()
     }
 
