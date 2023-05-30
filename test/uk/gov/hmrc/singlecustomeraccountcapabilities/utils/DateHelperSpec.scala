@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package uk.gov.hmrc.singlecustomeraccountcapabilities.utils
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -27,6 +27,7 @@ class DateHelperSpec extends AnyWordSpec with Matchers {
   "today " should {
 
     "return localDate now as default" in {
+      DateHelper.setDate(None)
       DateHelper.today shouldBe LocalDate.now()
     }
 

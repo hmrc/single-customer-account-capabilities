@@ -24,8 +24,8 @@ import play.api.libs.json.{JsArray, Json}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.HttpClientSupport
+import uk.gov.hmrc.singlecustomeraccountcapabilities.helper.WireMockHelper
 import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
-import helper.WireMockHelper
 
 import java.time.LocalDate
 
