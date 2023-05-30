@@ -20,12 +20,14 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsArray, Json}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.HttpClientSupport
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.IfCapabilityDetails
-import utils.WireMockHelper
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import helper.WireMockHelper
+
+import java.time.LocalDate
 
 
 class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMockHelper with HttpClientSupport with MockitoSugar {
@@ -40,14 +42,25 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
 
   "getCapabilities" must {
     "return the Capabilities data with valid Nino" in {
-      val capabilitiesResponseJson: JsObject = Json.obj(
-        "nino" -> Json.obj(
-          "hasNino" -> true,
-          "nino" -> "GG012345C"
+      val capabilitiesResponseJson: JsArray = Json.arr(
+        Json.obj(
+          "nino" -> Json.obj(
+            "hasNino" -> true,
+            "nino" -> "GG012345C"
+          ),
+          "date" -> "2022-05-19",
+          "descriptionContent" -> "Desc-1",
+          "url" -> "url-1"
         ),
-        "date" -> "9 April 2023",
-        "descriptionContent" -> "Your tax code has changed",
-        "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+        Json.obj(
+          "nino" -> Json.obj(
+            "hasNino" -> true,
+            "nino" -> "GG012345C"
+          ),
+          "date" -> "2023-04-09",
+          "descriptionContent" -> "Desc-2",
+          "url" -> "url-2"
+        )
       )
 
       server.stubFor(
@@ -58,8 +71,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
               .withBody(capabilitiesResponseJson.toString())
           )
       )
-      capabilitiesConnector.find(nino).map { response =>
-        response mustBe Some(capabilityDetails)
+      capabilitiesConnector.list(nino).map { response =>
+        response mustBe capabilityDetails
       }
     }
 
@@ -71,8 +84,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
             notFound
           )
       )
-      capabilitiesConnector.find(nino).map { response =>
-        response mustBe None
+      capabilitiesConnector.list(nino).map { response =>
+        response mustBe Seq.empty
       }
     }
   }
@@ -81,11 +94,18 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
 object CapabilitiesConnectorSpec {
   private val nino = "test-nino"
 
-  private val capabilityDetails = IfCapabilityDetails(
-    nino = Nino(true, Some("GG012345C")),
-    date = "9 April 2023",
-    descriptionContent = "Your tax code has changed",
-    url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
+  private val capabilityDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2022, 5, 19),
+      descriptionContent = "Desc-1",
+      url = "url-1"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 4, 9),
+      descriptionContent = "Desc-2",
+      url = "url-2")
+  )
 
   private val capabilityDetailsUrl = s"/individuals/details/NINO/$nino"
 }

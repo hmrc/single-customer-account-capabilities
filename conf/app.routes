@@ -1,4 +1,3 @@
 # microservice specific routes
 
-GET        /hello-world                                  uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.MicroserviceHelloWorldController.hello
 GET        /capabilities-data/:nino                      uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getCapabilitiesData(nino: String)

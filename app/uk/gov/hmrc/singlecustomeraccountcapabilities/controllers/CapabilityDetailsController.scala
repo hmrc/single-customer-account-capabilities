@@ -16,24 +16,26 @@
 
 package uk.gov.hmrc.singlecustomeraccountcapabilities.controllers
 
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
+import uk.gov.hmrc.singlecustomeraccountcapabilities.service.CapabilityDetailsService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 
 @Singleton()
-class CapabilityDetailsController @Inject()(capabilitiesConnector: CapabilitiesConnector,
+class CapabilityDetailsController @Inject()(capabilitiesService: CapabilityDetailsService,
                                             cc: ControllerComponents)
-                                           (implicit ec: ExecutionContext) extends BackendController(cc) {
+                                           (implicit ec: ExecutionContext)
+  extends BackendController(cc) with Logging {
 
   def getCapabilitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
-    capabilitiesConnector.find(nino).map {
-      case Some(capabilityDetail) => Ok(Json.toJson(capabilityDetail))
-      case _ => NoContent
+    capabilitiesService.retrieveCapabilitiesData(nino).map { capabilityDetail =>
+      logger.info("capabilities data fetched")
+      Ok(Json.toJson(capabilityDetail))
     }
   }
 
