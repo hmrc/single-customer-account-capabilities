@@ -27,14 +27,52 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpClientV2) {
 
-  private val endpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/details/NINO/%s"
+  private val capabilitiesEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/details/NINO/%s"
+  private val taxCalcEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/tax-calc/NINO/%s"
+  private val taxCodeEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/tax-code-change/NINO/%s"
+  private val childBenefitEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/child-benefit/NINO/%s"
+  private val payeIncomeEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/paye-income/NINO/%s"
 
   def list(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
-    httpClientV2.get(url"${endpoint.format(nino)}")
+    httpClientV2.get(url"${capabilitiesEndpoint.format(nino)}")
       .execute[Option[Seq[CapabilityDetails]]]
       .map {
         case Some(capabilityDetails) => capabilityDetails
         case _ => Seq.empty
       }
   }
+  def taxCalcList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+    httpClientV2.get(url"${taxCalcEndpoint.format(nino)}")
+      .execute[Option[Seq[CapabilityDetails]]]
+      .map {
+        case Some(capabilityDetails) => capabilityDetails
+        case _ => Seq.empty
+      }
+  }
+
+  def taxCodeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+    httpClientV2.get(url"${taxCodeEndpoint.format(nino)}")
+      .execute[Option[Seq[CapabilityDetails]]]
+      .map {
+        case Some(capabilityDetails) => capabilityDetails
+        case _ => Seq.empty
+      }
+  }
+  def childBenefitList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+    httpClientV2.get(url"${childBenefitEndpoint.format(nino)}")
+      .execute[Option[Seq[CapabilityDetails]]]
+      .map {
+        case Some(capabilityDetails) => capabilityDetails
+        case _ => Seq.empty
+      }
+  }
+  def payeIncomeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+    httpClientV2.get(url"${payeIncomeEndpoint.format(nino)}")
+      .execute[Option[Seq[CapabilityDetails]]]
+      .map {
+        case Some(capabilityDetails) => capabilityDetails
+        case _ => Seq.empty
+      }
+  }
+
 }

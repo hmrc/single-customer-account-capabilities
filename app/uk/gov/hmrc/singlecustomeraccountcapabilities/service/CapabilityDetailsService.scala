@@ -17,7 +17,7 @@
 package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
+import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.{ActivitiesConnector, CapabilitiesConnector}
 import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
 
 import java.time.LocalDate
@@ -27,12 +27,38 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton()
 class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConnector, capabilitiesRules: CapabilityDetailsRules) {
 
+
   def retrieveCapabilitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
     capabilitiesConnector.list(nino).map { capabilityDetails =>
       capabilityDetails.filter(capabilityDetail => withinValidTimeFrame(capabilityDetail.date))
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
 
+  def retrieveActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
+
+//    val activitiesDataList = Seq(capabilitiesConnector.taxCalcList(nino))
+
+    capabilitiesConnector.list(nino).map { activities =>
+      activities.filter(activities => withinValidTimeFrame(activities.date))
+        .sortWith((x, y) => x.date.isAfter(y.date))
+    }
+
   private def withinValidTimeFrame(taxCodeChangeDate: LocalDate): Boolean =
     capabilitiesRules.withinTaxYear(taxCodeChangeDate) || capabilitiesRules.withinSixMonth(taxCodeChangeDate)
 }
+
+
+/*
+def listActivity(nino: String, endpoint: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+  httpClientV2.get(url"${endpoint.format(nino)}")
+    .execute[Option[Seq[CapabilityDetails]]]
+    .map {
+      case Some(capabilityDetails) => capabilityDetails
+      case _ => Seq.empty
+    }
+}
+
+def listActivities(nino: String): Unit = {
+  endpointArray.map(endpoint => listActivity(nino, endpoint) )
+}
+ */

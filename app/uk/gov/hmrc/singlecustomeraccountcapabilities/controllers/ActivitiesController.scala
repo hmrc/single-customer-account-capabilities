@@ -33,7 +33,7 @@ class ActivitiesController @Inject()(capabilitiesService: CapabilityDetailsServi
   extends BackendController(cc) with Logging {
 
   def getActivities(nino: String): Action[AnyContent] = Action.async { implicit request =>
-    capabilitiesService.retrieveCapabilitiesData(nino).map { activity =>
+    capabilitiesService.retrieveActivitiesData(nino).map { activity =>
       logger.info("activities data fetched")
       Ok(Json.toJson(activity))
     }
