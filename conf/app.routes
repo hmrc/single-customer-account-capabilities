@@ -2,4 +2,4 @@
 
 GET        /capabilities-data/:nino                      uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getCapabilitiesData(nino: String)
 
-GET        /activities/:nino                      uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.ActivitiesController.getActivities(nino: String)
+GET        /activities/:nino                             uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getAllActivitiesData(nino: String)

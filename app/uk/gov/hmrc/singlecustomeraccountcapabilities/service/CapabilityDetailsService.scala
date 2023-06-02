@@ -17,7 +17,7 @@
 package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.{ActivitiesConnector, CapabilitiesConnector}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
 import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
 
 import java.time.LocalDate
@@ -34,31 +34,29 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
 
-  def retrieveActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
-
-//    val activitiesDataList = Seq(capabilitiesConnector.taxCalcList(nino))
-
+  def retrieveActivitiesData(nino: String)
+    (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
     capabilitiesConnector.list(nino).map { activities =>
       activities.filter(activities => withinValidTimeFrame(activities.date))
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
 
+  def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] ={
+
+    for{
+      taxCalc <- capabilitiesConnector.taxCalcList(nino)
+      taxCode <- capabilitiesConnector.taxCodeList(nino)
+      childBenefit <- capabilitiesConnector.childBenefitList(nino)
+      payeIncome <- capabilitiesConnector.payeIncomeList(nino)
+    }
+    yield{
+      val activities = Seq(taxCalc, taxCode, childBenefit, payeIncome)
+      activities.flatten.filter(activities => withinValidTimeFrame(activities.date))
+        .sortWith((x, y) => x.date.isAfter(y.date))
+    }
+  }
+
   private def withinValidTimeFrame(taxCodeChangeDate: LocalDate): Boolean =
     capabilitiesRules.withinTaxYear(taxCodeChangeDate) || capabilitiesRules.withinSixMonth(taxCodeChangeDate)
 }
 
-
-/*
-def listActivity(nino: String, endpoint: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
-  httpClientV2.get(url"${endpoint.format(nino)}")
-    .execute[Option[Seq[CapabilityDetails]]]
-    .map {
-      case Some(capabilityDetails) => capabilityDetails
-      case _ => Seq.empty
-    }
-}
-
-def listActivities(nino: String): Unit = {
-  endpointArray.map(endpoint => listActivity(nino, endpoint) )
-}
- */
