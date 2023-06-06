@@ -18,7 +18,7 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{Activities, CapabilityDetails}
 
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
@@ -41,7 +41,11 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
 
-  def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] ={
+  def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Activities] ={
+
+    def sortFilter(activities: Seq[CapabilityDetails]): Seq[CapabilityDetails] ={
+      activities.filter(activities => withinValidTimeFrame(activities.date))
+        .sortWith((x, y) => x.date.isAfter(y.date))}
 
     for{
       taxCalc <- capabilitiesConnector.taxCalcList(nino)
@@ -50,9 +54,7 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
       payeIncome <- capabilitiesConnector.payeIncomeList(nino)
     }
     yield{
-      val activities = Seq(taxCalc, taxCode, childBenefit, payeIncome)
-      activities.flatten.filter(activities => withinValidTimeFrame(activities.date))
-        .sortWith((x, y) => x.date.isAfter(y.date))
+      Activities(sortFilter(taxCalc), sortFilter(taxCode), sortFilter(childBenefit), sortFilter(payeIncome))
     }
   }
 
