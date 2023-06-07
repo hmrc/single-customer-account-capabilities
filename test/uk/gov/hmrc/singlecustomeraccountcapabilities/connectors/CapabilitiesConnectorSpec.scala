@@ -371,37 +371,37 @@ object CapabilitiesConnectorSpec {
   private val taxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(1).minusDays(1),
+      date = LocalDate.of(2023,5,5),
       descriptionContent = "Your tax code has changed - 1",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(2),
+      date = LocalDate.of(2023,4,6),
       descriptionContent = "Your tax code has changed - 2",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(3).plusDays(1),
+      date = LocalDate.of(2023,3,7),
       descriptionContent = "Your tax code has changed - 3",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.withMonth(4).withDayOfMonth(5),
+      date = LocalDate.of(2023,4,5),
       descriptionContent = "Your tax code has changed - 4",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.withMonth(4).withDayOfMonth(6),
+      date = LocalDate.of(2023,4,6),
       descriptionContent = "Your tax code has changed - 5",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.withMonth(4).withDayOfMonth(7),
+      date = LocalDate.of(2023,4,7),
       descriptionContent = "Your tax code has changed - 6",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now,
+      date = LocalDate.of(2023,6,6),
       descriptionContent = "Your tax code has changed - 7",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
   )
@@ -409,27 +409,27 @@ object CapabilitiesConnectorSpec {
   private val childBenefitDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(1).minusDays(1),
+      date = LocalDate.of(2023,5,5),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(2),
+      date = LocalDate.of(2023,4,6),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(3).plusDays(1),
+      date = LocalDate.of(2023,3,7),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.withMonth(4).withDayOfMonth(5),
+      date = LocalDate.of(2023,4,5),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.withMonth(4).withDayOfMonth(6),
+      date = LocalDate.of(2023,4,6),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
   )
@@ -437,7 +437,7 @@ object CapabilitiesConnectorSpec {
   private val payeIncomeDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.now.minusMonths(2).minusDays(1),
+      date = LocalDate.of(2023,4,5),
       descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
   )
