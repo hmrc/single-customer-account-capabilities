@@ -22,7 +22,7 @@ import uk.gov.hmrc.auth.core.Nino
 import java.time.LocalDate
 
 
-case class CapabilityDetails(nino: Nino, date: LocalDate, descriptionContent: String, url: String)
+case class CapabilityDetails(nino: Nino, date: LocalDate, descriptionContent: String, url: String, activityHeading: String)
 
 object CapabilityDetails {
 
