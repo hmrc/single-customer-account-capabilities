@@ -27,7 +27,7 @@ import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{Activities, CapabilityDetails}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -128,6 +128,116 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
       }
     }
   }
+
+  "retrieveAllActivitiesData" must {
+
+    "return empty Seq if capabilitiesConnector returns empty Seq" in {
+
+      when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+      when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+      when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+
+      capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, never()).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
+
+        result mustBe Activities(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+      }
+    }
+
+    "return empty Seq if capabilityDetails does not pass the rules" in {
+
+      when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
+      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
+      when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(false)
+
+      capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(8)).withinSixMonth(any())
+
+        result mustBe Activities(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+      }
+    }
+
+    "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails withinTaxYear" in {
+
+      when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
+      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
+      when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
+
+      capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
+
+        result mustBe orderedActivities
+      }
+    }
+
+    "return ordered list of Activities if retrieved unorderedCapabilityDetails withinSixMonth" in {
+
+      when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
+      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
+      when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(true)
+
+      capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(8)).withinSixMonth(any())
+
+        result mustBe orderedActivities
+      }
+    }
+
+    "return ordered list of Activities if retrieved unorderedCapabilityDetails both withinTaxYear and withinSixMonth" in {
+
+      when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
+      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
+      when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(true)
+
+      capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
+
+        result mustBe orderedActivities
+      }
+    }
+  }
 }
 
 object CapabilityDetailsServiceSpec {
@@ -136,17 +246,20 @@ object CapabilityDetailsServiceSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2022, 5, 19),
       descriptionContent = "Desc-1",
-      url = "url-1"),
+      url = "url-1",
+      activityHeading = "activityHeading-1"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 4, 9),
       descriptionContent = "Desc-2",
-      url = "url-2"),
+      url = "url-2",
+      activityHeading = "activityHeading-2"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 1, 19),
       descriptionContent = "Desc-3",
-      url = "url-3")
+      url = "url-3",
+      activityHeading = "activityHeading-3")
   )
 
   val orderedByDateCapabilityDetails: Seq[CapabilityDetails] = Seq(
@@ -154,16 +267,146 @@ object CapabilityDetailsServiceSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 4, 9),
       descriptionContent = "Desc-2",
-      url = "url-2"),
+      url = "url-2",
+      activityHeading = "activityHeading-2"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 1, 19),
       descriptionContent = "Desc-3",
-      url = "url-3"),
+      url = "url-3",
+      activityHeading = "activityHeading-3"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2022, 5, 19),
       descriptionContent = "Desc-1",
-      url = "url-1")
+      url = "url-1",
+      activityHeading = "activityHeading-1")
   )
+
+  val unOrderedTaxCalcDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 3, 1),
+      descriptionContent = "Your tax calculation for the 2022-2023 is now available",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your tax calculation"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 4, 1),
+      descriptionContent = "Your tax calculation for the 2022-2023 is now available",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your tax calculation")
+  )
+
+  val orderedByDateTaxCalcDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 4, 1),
+      descriptionContent = "Your tax calculation for the 2022-2023 is now available",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your tax calculation"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 3, 1),
+      descriptionContent = "Your tax calculation for the 2022-2023 is now available",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your tax calculation")
+
+  )
+
+  val unOrderedTaxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 5, 5),
+      descriptionContent = "Your tax code has changed - 1",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 6, 6),
+      descriptionContent = "Your tax code has changed - 2",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change")
+  )
+
+  val orderedByDateTaxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 6, 6),
+      descriptionContent = "Your tax code has changed - 2",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 5, 5),
+      descriptionContent = "Your tax code has changed - 1",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change")
+  )
+
+  val unOrderedChildBenefitDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 5, 5),
+      descriptionContent = "HMRC paid you Child Benefit",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 6, 6),
+      descriptionContent = "HMRC paid you Child Benefit",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
+  )
+
+  val orderedByDateChildBenefitDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 6, 6),
+      descriptionContent = "HMRC paid you Child Benefit",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 5, 5),
+      descriptionContent = "HMRC paid you Child Benefit",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
+  )
+
+  val unOrderedPayeIncomeDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 4, 5),
+      descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your PAYE income for the current tax year"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 6, 5),
+      descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your PAYE income for the current tax year")
+  )
+
+  val orderedByDatePayeIncomeDetails: Seq[CapabilityDetails] = Seq(
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 6, 5),
+      descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your PAYE income for the current tax year"),
+    CapabilityDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 4, 5),
+      descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your PAYE income for the current tax year")
+  )
+
+  val orderedActivities: Activities =
+    Activities(orderedByDateTaxCalcDetails,orderedByDateTaxCodeChangeDetails,orderedByDateChildBenefitDetails,orderedByDatePayeIncomeDetails)
+
+
+
 }

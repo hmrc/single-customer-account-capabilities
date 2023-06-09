@@ -50,7 +50,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2022-05-19",
           "descriptionContent" -> "Desc-1",
-          "url" -> "url-1"
+          "url" -> "url-1",
+          "activityHeading" -> "activityHeading-1"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -59,7 +60,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-09",
           "descriptionContent" -> "Desc-2",
-          "url" -> "url-2"
+          "url" -> "url-2",
+          "activityHeading" -> "activityHeading-2"
         )
       )
 
@@ -100,7 +102,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-01",
           "descriptionContent" -> "Your tax calculation for the 2022-2023 is now available",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Your tax calculation"
         ),
       )
 
@@ -141,7 +144,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-05-05",
           "descriptionContent" -> "Your tax code has changed - 1",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -150,7 +154,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-06",
           "descriptionContent" -> "Your tax code has changed - 2",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -159,7 +164,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-03-07",
           "descriptionContent" -> "Your tax code has changed - 3",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -168,7 +174,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-05",
           "descriptionContent" -> "Your tax code has changed - 4",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -177,7 +184,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-06",
           "descriptionContent" -> "Your tax code has changed - 5",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -186,7 +194,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-07",
           "descriptionContent" -> "Your tax code has changed - 6",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -195,7 +204,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-06-06",
           "descriptionContent" -> "Your tax code has changed - 7",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Latest Tax code change"
         )
       )
 
@@ -235,7 +245,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-05-05",
           "descriptionContent" -> "HMRC paid you Child Benefit",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Recent Child Benefit payments"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -244,7 +255,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-06",
           "descriptionContent" -> "HMRC paid you Child Benefit",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Recent Child Benefit payments"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -253,7 +265,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-03-07",
           "descriptionContent" -> "HMRC paid you Child Benefit",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Recent Child Benefit payments"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -262,7 +275,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-05",
           "descriptionContent" -> "HMRC paid you Child Benefit",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Recent Child Benefit payments"
         ),
         Json.obj(
           "nino" -> Json.obj(
@@ -271,7 +285,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-06",
           "descriptionContent" -> "HMRC paid you Child Benefit",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Recent Child Benefit payments"
         )
       )
 
@@ -312,7 +327,8 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           ),
           "date" -> "2023-04-05",
           "descriptionContent" -> "Central Perk Coffee Ltd paid you PAYE income",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Your PAYE income for the current tax year"
         ),
       )
 
@@ -352,12 +368,14 @@ object CapabilitiesConnectorSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2022, 5, 19),
       descriptionContent = "Desc-1",
-      url = "url-1"),
+      url = "url-1",
+      activityHeading = "activityHeading-1"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 4, 9),
       descriptionContent = "Desc-2",
-      url = "url-2")
+      url = "url-2",
+      activityHeading = "activityHeading-2")
   )
 
   private val taxCalcDetails: Seq[CapabilityDetails] = Seq(
@@ -365,7 +383,9 @@ object CapabilitiesConnectorSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 4, 1),
       descriptionContent = "Your tax calculation for the 2022-2023 is now available",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your tax calculation")
+
   )
 
   private val taxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
@@ -373,37 +393,44 @@ object CapabilitiesConnectorSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,5,5),
       descriptionContent = "Your tax code has changed - 1",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,6),
       descriptionContent = "Your tax code has changed - 2",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,3,7),
       descriptionContent = "Your tax code has changed - 3",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,5),
       descriptionContent = "Your tax code has changed - 4",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,6),
       descriptionContent = "Your tax code has changed - 5",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,7),
       descriptionContent = "Your tax code has changed - 6",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,6,6),
       descriptionContent = "Your tax code has changed - 7",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Latest Tax code change")
   )
 
   private val childBenefitDetails: Seq[CapabilityDetails] = Seq(
@@ -411,27 +438,32 @@ object CapabilitiesConnectorSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,5,5),
       descriptionContent = "HMRC paid you Child Benefit",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,6),
       descriptionContent = "HMRC paid you Child Benefit",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,3,7),
       descriptionContent = "HMRC paid you Child Benefit",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,5),
       descriptionContent = "HMRC paid you Child Benefit",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison"),
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,6),
       descriptionContent = "HMRC paid you Child Benefit",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Recent Child Benefit payments")
   )
 
   private val payeIncomeDetails: Seq[CapabilityDetails] = Seq(
@@ -439,7 +471,8 @@ object CapabilitiesConnectorSpec {
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023,4,5),
       descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison")
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Your PAYE income for the current tax year")
   )
 
   private val capabilityDetailsUrl = s"/individuals/details/NINO/$nino"
