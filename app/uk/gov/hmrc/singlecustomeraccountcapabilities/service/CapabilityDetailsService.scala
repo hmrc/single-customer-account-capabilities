@@ -34,13 +34,6 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
 
-  def retrieveActivitiesData(nino: String)
-    (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
-    capabilitiesConnector.list(nino).map { activities =>
-      activities.filter(activities => withinValidTimeFrame(activities.date))
-        .sortWith((x, y) => x.date.isAfter(y.date))
-    }
-
   def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Activities] ={
 
     def sortFilter(activities: Seq[CapabilityDetails]): Seq[CapabilityDetails] ={
