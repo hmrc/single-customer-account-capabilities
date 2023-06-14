@@ -45,4 +45,11 @@ class CapabilityDetailsController @Inject()(capabilitiesService: CapabilityDetai
     }
   }
 
+  def getAllActionsData(nino: String): Action[AnyContent] = Action.async { implicit request =>
+    capabilitiesService.retrieveActionsData(nino).map { actions =>
+      logger.info(s"[CapabilityDetailsController][getAllActionsData] actions data fetched")
+      Ok(Json.toJson(actions))
+    }
+  }
+
 }
