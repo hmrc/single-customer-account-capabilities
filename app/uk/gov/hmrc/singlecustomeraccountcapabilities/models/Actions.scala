@@ -19,9 +19,8 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.models
 import play.api.libs.json.{Format, Json}
 
 case class Actions(
-  actionsTaxCalc: Seq[ActionDetails]
+  taxCalc: Seq[ActionDetails]
                   )
-
 object Actions {
 
   implicit val format: Format[Actions] = Json.format[Actions]

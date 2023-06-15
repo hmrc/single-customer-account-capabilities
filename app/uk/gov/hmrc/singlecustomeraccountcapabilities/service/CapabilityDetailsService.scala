@@ -18,7 +18,7 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Activities, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
 
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
@@ -52,10 +52,18 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
     }
   }
 
-  def retrieveActionsData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[ActionDetails]] = {
-    capabilitiesConnector.actionTaxCalcList(nino).map { actionsData =>
-      actionsData.filter(actionData => withinValidTimeFrame(actionData.date))
+  def retrieveActionsData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Actions] = {
+
+    def sortFilter(actions: Seq[ActionDetails]): Seq[ActionDetails] = {
+      actions.filter(actions => withinValidTimeFrame(actions.date))
         .sortWith((x, y) => x.date.isAfter(y.date))
+    }
+
+    for {
+      taxCalc <- capabilitiesConnector.actionTaxCalcList(nino)
+    }
+    yield {
+      Actions(sortFilter(taxCalc))
     }
   }
 
