@@ -30,8 +30,8 @@ import play.api.test.Helpers._
 import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsControllerSpec.allActivityData
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{Activities, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsControllerSpec.{allActivityData, overPaymentData}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
 import uk.gov.hmrc.singlecustomeraccountcapabilities.service.CapabilityDetailsService
 
 import java.time.LocalDate
@@ -306,6 +306,50 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
       }
     }
   }
+
+  "GET /actions" must {
+    "return 200" in {
+
+      when(mockCapabilitiesService.retrieveActionsData(anyString())(any(), any())).thenReturn(Future.successful(overPaymentData))
+
+      val result = controller.getAllActionsData("valid-nino")(fakeRequest)
+
+      whenReady(result) { _ =>
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.obj(
+          "taxCalc" ->
+            Json.arr(
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-01-10",
+                "descriptionContent" -> "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+                "actionDescription" -> "Claim your tax refund",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Things for you to do"
+              )
+            )
+        )
+      }
+    }
+
+    "return Empty List When actions not found with the nino" in {
+
+      val emptyActivities = Actions(Seq.empty)
+
+      when(mockCapabilitiesService.retrieveActionsData(anyString())(any(), any())).thenReturn(Future.successful(emptyActivities))
+
+      val result = controller.getAllActionsData("invalid-nino")(fakeRequest)
+      val emptyResult = Json.obj("taxCalc" -> Json.arr())
+
+      whenReady(result) { _ =>
+        status(result) mustBe OK
+        contentAsJson(result) mustBe emptyResult
+      }
+    }
+  }
 }
 
 object CapabilityDetailsControllerSpec {
@@ -405,6 +449,19 @@ object CapabilityDetailsControllerSpec {
       )
     )
   }
+
+  val overPaymentData =
+    Actions(
+      taxCalc = Seq(
+        ActionDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023,1,10),
+          descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+          actionDescription = "Claim your tax refund",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Things for you to do")
+      )
+    )
 }
 
 

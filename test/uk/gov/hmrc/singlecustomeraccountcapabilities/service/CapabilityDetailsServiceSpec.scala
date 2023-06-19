@@ -27,7 +27,7 @@ import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{Activities, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -238,6 +238,86 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
       }
     }
   }
+
+  "retrieveActionsData" must {
+
+    "return empty Seq if capabilitiesConnector returns empty Seq" in {
+
+      when(mockCapabilitiesConnector.actionTaxCalcList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+
+      capabilityDetailsService.retrieveActionsData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).actionTaxCalcList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, never()).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
+
+        result mustBe Actions(Seq.empty)
+      }
+    }
+
+    "return empty Seq if capabilityDetails does not pass the rules" in {
+
+      when(mockCapabilitiesConnector.actionTaxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedOverPayment))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(false)
+
+      capabilityDetailsService.retrieveActionsData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).actionTaxCalcList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(2)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(2)).withinSixMonth(any())
+
+        result mustBe Actions(Seq.empty)
+      }
+    }
+
+    "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails withinTaxYear" in {
+
+      when(mockCapabilitiesConnector.actionTaxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedOverPayment))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
+
+      capabilityDetailsService.retrieveActionsData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).actionTaxCalcList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(2)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
+
+        result mustBe orderedActions
+      }
+    }
+
+    "return ordered list of Activities if retrieved unorderedCapabilityDetails withinSixMonth" in {
+
+      when(mockCapabilitiesConnector.actionTaxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedOverPayment))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(true)
+
+      capabilityDetailsService.retrieveActionsData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).actionTaxCalcList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(2)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(2)).withinSixMonth(any())
+
+        result mustBe orderedActions
+      }
+    }
+
+    "return ordered list of Activities if retrieved unorderedCapabilityDetails both withinTaxYear and withinSixMonth" in {
+
+      when(mockCapabilitiesConnector.actionTaxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedOverPayment))
+      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(true)
+
+      capabilityDetailsService.retrieveActionsData("nino-for-empty-list").map { result =>
+        verify(mockCapabilitiesConnector, times(1)).actionTaxCalcList(anyString())(any(), any())
+
+        verify(mockCapabilityDetailsRules, times(2)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
+
+        result mustBe orderedActions
+      }
+    }
+  }
 }
 
 object CapabilityDetailsServiceSpec {
@@ -404,9 +484,44 @@ object CapabilityDetailsServiceSpec {
       activityHeading = "Your PAYE income for the current tax year")
   )
 
+  private val unOrderedOverPayment = Seq(
+    ActionDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 1, 10),
+      descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+      actionDescription = "Claim your tax refund",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Things for you to do"),
+    ActionDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 1, 15),
+      descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+      actionDescription = "Claim your tax refund",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Things for you to do")
+  )
+
+  private val orderedOverPayment = Seq(
+    ActionDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 1, 15),
+      descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+      actionDescription = "Claim your tax refund",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Things for you to do"),
+    ActionDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023, 1, 10),
+      descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+      actionDescription = "Claim your tax refund",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Things for you to do")
+  )
+
   val orderedActivities: Activities =
     Activities(orderedByDateTaxCalcDetails,orderedByDateTaxCodeChangeDetails,orderedByDateChildBenefitDetails,orderedByDatePayeIncomeDetails)
 
-
+  val orderedActions =
+    Actions(orderedOverPayment)
 
 }

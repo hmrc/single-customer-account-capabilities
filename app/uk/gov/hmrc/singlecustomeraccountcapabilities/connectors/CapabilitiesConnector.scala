@@ -108,7 +108,7 @@ class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpCl
         case _ => Seq.empty
       }.recover {
       case ex: Exception =>
-        logger.error(s"[CapabilityConnector][taxCalcList] exception: ${ex.getMessage}")
+        logger.error(s"[CapabilityConnector][actionTaxCalcList] exception: ${ex.getMessage}")
         Seq.empty
     }
   }

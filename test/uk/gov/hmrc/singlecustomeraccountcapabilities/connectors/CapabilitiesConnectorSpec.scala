@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.HttpClientSupport
 import uk.gov.hmrc.singlecustomeraccountcapabilities.helper.WireMockHelper
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails}
 
 import java.time.LocalDate
 
@@ -358,6 +358,79 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
       }
     }
   }
+
+  "actionTaxCalcList" must {
+    "return tax overpayment notice data with Nino as GG012345C" in {
+      val overpaymentTaxCalcResponseJson: JsArray = Json.arr(
+        Json.obj(
+          "nino" -> Json.obj(
+            "hasNino" -> true,
+            "nino" -> "GG012345C"
+          ),
+          "date" -> "2023-01-10",
+          "descriptionContent" -> "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+          "actionDescription" -> "Claim your tax refund",
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Things for you to do"
+        ),
+      )
+
+      server.stubFor(
+        get(urlEqualTo(actionTaxCalcUrl))
+          .willReturn(
+            ok
+              .withHeader("Content-Type", "application/json")
+              .withBody(overpaymentTaxCalcResponseJson.toString())
+          )
+      )
+      capabilitiesConnector.actionTaxCalcList(nino).map { response =>
+        response mustBe overPayment
+      }
+    }
+
+    "return tax underpayment notice data with Nino as AA999999A" in {
+      val underpaymentTaxCalcResponseJson: JsArray = Json.arr(
+        Json.obj(
+          "nino" -> Json.obj(
+            "hasNino" -> true,
+            "nino" -> "AA999999A"
+          ),
+          "date" -> "2023-01-10",
+          "descriptionContent" -> "You did not pay enough tax in the 2022 to 2023 tax year. You must pay HMRC by 31 January 2023.",
+          "actionDescription" -> "Make a tax payment",
+          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          "activityHeading" -> "Things for you to do"
+        ),
+      )
+
+      server.stubFor(
+        get(urlEqualTo(actionTaxCalcUrl))
+          .willReturn(
+            ok
+              .withHeader("Content-Type", "application/json")
+              .withBody(underpaymentTaxCalcResponseJson.toString())
+          )
+      )
+      capabilitiesConnector.actionTaxCalcList(nino).map { response =>
+        response mustBe underPayment
+      }
+    }
+
+    "return None with valid Nino" in {
+
+      server.stubFor(
+        get(urlEqualTo(actionTaxCalcUrl))
+          .willReturn(
+            notFound
+          )
+      )
+      capabilitiesConnector.taxCalcList(nino).map { response =>
+        response mustBe Seq.empty
+      }
+    }
+  }
+
+
 }
 
 object CapabilitiesConnectorSpec {
@@ -475,11 +548,31 @@ object CapabilitiesConnectorSpec {
       activityHeading = "Your PAYE income for the current tax year")
   )
 
+  private val overPayment = Seq(
+    ActionDetails(
+      nino = Nino(true, Some("GG012345C")),
+      date = LocalDate.of(2023,1,10),
+      descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+      actionDescription = "Claim your tax refund",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Things for you to do")
+  )
+
+  private val underPayment = Seq(
+    ActionDetails(
+      nino = Nino(true, Some("AA999999A")),
+      date = LocalDate.of(2023,1,10),
+      descriptionContent = "You did not pay enough tax in the 2022 to 2023 tax year. You must pay HMRC by 31 January 2023.",
+      actionDescription = "Make a tax payment",
+      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+      activityHeading = "Things for you to do")
+  )
+
   private val capabilityDetailsUrl = s"/individuals/details/NINO/$nino"
   private val taxCalcUrl = s"/individuals/activities/tax-calc/NINO/$nino"
   private val taxCodeChangeUrl = s"/individuals/activities/tax-code-change/NINO/$nino"
   private val childBenefitUrl = s"/individuals/activities/child-benefit/NINO/$nino"
   private val payeIncomeUrl = s"/individuals/activities/paye-income/NINO/$nino"
-
+  private val actionTaxCalcUrl = s"/individuals/actions/tax-calc/NINO/$nino"
 
 }
