@@ -40,58 +40,6 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
 
   private lazy val capabilitiesConnector: CapabilitiesConnector = injector.instanceOf[CapabilitiesConnector]
 
-  "getCapabilities" must {
-    "return the Capabilities data with valid Nino" in {
-      val capabilitiesResponseJson: JsArray = Json.arr(
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2022-05-19",
-          "descriptionContent" -> "Desc-1",
-          "url" -> "url-1",
-          "activityHeading" -> "activityHeading-1"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-04-09",
-          "descriptionContent" -> "Desc-2",
-          "url" -> "url-2",
-          "activityHeading" -> "activityHeading-2"
-        )
-      )
-
-      server.stubFor(
-        get(urlEqualTo(capabilityDetailsUrl))
-          .willReturn(
-            ok
-              .withHeader("Content-Type", "application/json")
-              .withBody(capabilitiesResponseJson.toString())
-          )
-      )
-      capabilitiesConnector.list(nino).map { response =>
-        response mustBe capabilityDetails
-      }
-    }
-
-    "return None with valid Nino" in {
-
-      server.stubFor(
-        get(urlEqualTo(capabilityDetailsUrl))
-          .willReturn(
-            notFound
-          )
-      )
-      capabilitiesConnector.list(nino).map { response =>
-        response mustBe Seq.empty
-      }
-    }
-  }
-
   "taxCalcList" must {
     "return the tax calc data with valid Nino" in {
       val taxCalcResponseJson: JsArray = Json.arr(
@@ -436,21 +384,6 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
 object CapabilitiesConnectorSpec {
   private val nino = "test-nino"
 
-  private val capabilityDetails: Seq[CapabilityDetails] = Seq(
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2022, 5, 19),
-      descriptionContent = "Desc-1",
-      url = "url-1",
-      activityHeading = "activityHeading-1"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023, 4, 9),
-      descriptionContent = "Desc-2",
-      url = "url-2",
-      activityHeading = "activityHeading-2")
-  )
-
   private val taxCalcDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
@@ -568,7 +501,6 @@ object CapabilitiesConnectorSpec {
       activityHeading = "Things for you to do")
   )
 
-  private val capabilityDetailsUrl = s"/individuals/details/NINO/$nino"
   private val taxCalcUrl = s"/individuals/activities/tax-calc/NINO/$nino"
   private val taxCodeChangeUrl = s"/individuals/activities/tax-code-change/NINO/$nino"
   private val childBenefitUrl = s"/individuals/activities/child-benefit/NINO/$nino"
