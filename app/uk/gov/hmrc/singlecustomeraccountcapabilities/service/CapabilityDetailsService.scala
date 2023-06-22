@@ -27,13 +27,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton()
 class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConnector, capabilitiesRules: CapabilityDetailsRules) {
 
-
-  def retrieveCapabilitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
-    capabilitiesConnector.list(nino).map { capabilityDetails =>
-      capabilityDetails.filter(capabilityDetail => withinValidTimeFrame(capabilityDetail.date))
-        .sortWith((x, y) => x.date.isAfter(y.date))
-    }
-
   def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Activities] = {
 
     def sortFilter(activities: Seq[CapabilityDetails]): Seq[CapabilityDetails] = {

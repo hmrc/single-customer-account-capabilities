@@ -32,12 +32,6 @@ class CapabilityDetailsController @Inject()(capabilitiesService: CapabilityDetai
                                            (implicit ec: ExecutionContext)
   extends BackendController(cc) with Logging {
 
-  def getCapabilitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
-    capabilitiesService.retrieveCapabilitiesData(nino).map { capabilityDetail =>
-      logger.info(s"[CapabilityDetailsController][getCapabilitiesData] capabilities data fetched")
-      Ok(Json.toJson(capabilityDetail))
-    }
-  }
   def getAllActivitiesData(nino: String): Action[AnyContent] = Action.async { implicit request =>
     capabilitiesService.retrieveAllActivitiesData(nino).map { activities =>
       logger.info(s"[CapabilityDetailsController][getAllActivitiesData] activities data fetched")
