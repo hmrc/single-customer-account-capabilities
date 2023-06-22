@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.HttpClientSupport
 import uk.gov.hmrc.singlecustomeraccountcapabilities.helper.WireMockHelper
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails, TaxCodeChangeData, TaxCodeChangeDetails, TaxCodeChangeObject}
 
 import java.time.LocalDate
 
@@ -138,76 +138,35 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
     "return the tax code data with valid Nino" in {
       val taxCodeChangeResponseJson: JsArray = Json.arr(
         Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
+          "data" -> Json.obj(
+            "current" ->
+              Json.obj(
+                "taxCode" -> "830L",
+                "employerName" -> "Employer Name",
+                "operatedTaxCode" -> true,
+                "p2Issued" -> true,
+                "startDate" -> "2023-06-21",
+                "endDate" -> "2023-09-21",
+                "payrollNumber" -> "1",
+                "pensionIndicator" -> true,
+                "primary" -> true
+              )
+            ,
+            "previous" ->
+              Json.obj(
+                "taxCode" -> "1150L",
+                "employerName" -> "Employer Name",
+                "operatedTaxCode" -> true,
+                "p2Issued" -> true,
+                "startDate" -> "2022-06-21",
+                "endDate" -> "2022-09-21",
+                "payrollNumber" -> "1",
+                "pensionIndicator" -> true,
+                "primary" -> true
+              )
           ),
-          "date" -> "2023-05-05",
-          "descriptionContent" -> "Your tax code has changed - 1",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-04-06",
-          "descriptionContent" -> "Your tax code has changed - 2",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-03-07",
-          "descriptionContent" -> "Your tax code has changed - 3",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-04-05",
-          "descriptionContent" -> "Your tax code has changed - 4",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-04-06",
-          "descriptionContent" -> "Your tax code has changed - 5",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-04-07",
-          "descriptionContent" -> "Your tax code has changed - 6",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        ),
-        Json.obj(
-          "nino" -> Json.obj(
-            "hasNino" -> true,
-            "nino" -> "GG012345C"
-          ),
-          "date" -> "2023-06-06",
-          "descriptionContent" -> "Your tax code has changed - 7",
-          "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          "activityHeading" -> "Latest Tax code change"
-        )
-      )
+          "links" -> Json.arr()
+        ))
 
       server.stubFor(
         get(urlEqualTo(taxCodeChangeUrl))
@@ -237,7 +196,7 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
   }
   "childBenefitList" must {
     "return the child benefit data with valid Nino" in {
-      val taxCodeChangeResponseJson: JsArray = Json.arr(
+      val childBenefitResponseJson: JsArray = Json.arr(
         Json.obj(
           "nino" -> Json.obj(
             "hasNino" -> true,
@@ -295,7 +254,7 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
           .willReturn(
             ok
               .withHeader("Content-Type", "application/json")
-              .withBody(taxCodeChangeResponseJson.toString())
+              .withBody(childBenefitResponseJson.toString())
           )
       )
       capabilitiesConnector.childBenefitList(nino).map { response =>
@@ -461,49 +420,18 @@ object CapabilitiesConnectorSpec {
 
   )
 
-  private val taxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,5,5),
-      descriptionContent = "Your tax code has changed - 1",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,6),
-      descriptionContent = "Your tax code has changed - 2",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,3,7),
-      descriptionContent = "Your tax code has changed - 3",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,5),
-      descriptionContent = "Your tax code has changed - 4",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,6),
-      descriptionContent = "Your tax code has changed - 5",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,7),
-      descriptionContent = "Your tax code has changed - 6",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,6,6),
-      descriptionContent = "Your tax code has changed - 7",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change")
+  private val taxCodeChangeDetails: Seq[TaxCodeChangeObject] = Seq(
+    TaxCodeChangeObject(
+      data = TaxCodeChangeData(
+        current = TaxCodeChangeDetails(
+          taxCode = "830L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2023-06-21", endDate = "2023-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
+        ),
+        previous = TaxCodeChangeDetails(
+          taxCode = "1150L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2022-06-21", endDate = "2022-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
+        )
+      ),
+      links = Array.empty[String]
+    )
   )
 
   private val childBenefitDetails: Seq[CapabilityDetails] = Seq(

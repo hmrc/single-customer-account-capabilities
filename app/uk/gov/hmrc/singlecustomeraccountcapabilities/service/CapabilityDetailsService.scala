@@ -51,14 +51,18 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
       childBenefit <- capabilitiesConnector.childBenefitList(nino)
       payeIncome <- capabilitiesConnector.payeIncomeList(nino)
     }
-    yield {
-      Activities(sortFilter(taxCalc), sortFilter(Seq(CapabilityDetails(nino = Nino(true, Some("GG012345C")),
-        date = LocalDate.parse(taxDetails.head.data.current.startDate, formatter),
-        descriptionContent = "Your tax code has changed - 1",
-        url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-        activityHeading = "Latest Tax code change"))),
-        sortFilter(childBenefit), sortFilter(payeIncome))
-    }
+    yield {taxDetails match {
+      case Seq(_) if (taxDetails.length > 0) =>
+        Activities(sortFilter(taxCalc), sortFilter(Seq(CapabilityDetails(nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.parse(taxDetails.head.data.current.startDate, formatter),
+          descriptionContent = "Your tax code has changed - 1",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"))),
+          sortFilter(childBenefit), sortFilter(payeIncome))
+      case _ =>
+        Activities(sortFilter(taxCalc), Seq.empty,
+          sortFilter(childBenefit), sortFilter(payeIncome))
+    }}
   }
 
   def retrieveActionsData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Actions] = {
