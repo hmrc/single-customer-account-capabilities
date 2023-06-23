@@ -18,7 +18,7 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
 
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
@@ -27,12 +27,40 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton()
 class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConnector, capabilitiesRules: CapabilityDetailsRules) {
 
-  def retrieveCapabilitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
-    capabilitiesConnector.list(nino).map { capabilityDetails =>
-      capabilityDetails.filter(capabilityDetail => withinValidTimeFrame(capabilityDetail.date))
+  def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Activities] = {
+
+    def sortFilter(activities: Seq[CapabilityDetails]): Seq[CapabilityDetails] = {
+      activities.filter(activities => withinValidTimeFrame(activities.date))
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
+
+    for {
+      taxCalc <- capabilitiesConnector.taxCalcList(nino)
+      taxCode <- capabilitiesConnector.taxCodeList(nino)
+      childBenefit <- capabilitiesConnector.childBenefitList(nino)
+      payeIncome <- capabilitiesConnector.payeIncomeList(nino)
+    }
+    yield {
+      Activities(sortFilter(taxCalc), sortFilter(taxCode), sortFilter(childBenefit), sortFilter(payeIncome))
+    }
+  }
+
+  def retrieveActionsData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Actions] = {
+
+    def sortFilter(actions: Seq[ActionDetails]): Seq[ActionDetails] = {
+      actions.filter(actions => withinValidTimeFrame(actions.date))
+        .sortWith((x, y) => x.date.isAfter(y.date))
+    }
+
+    for {
+      taxCalc <- capabilitiesConnector.actionTaxCalcList(nino)
+    }
+    yield {
+      Actions(sortFilter(taxCalc))
+    }
+  }
 
   private def withinValidTimeFrame(taxCodeChangeDate: LocalDate): Boolean =
     capabilitiesRules.withinTaxYear(taxCodeChangeDate) || capabilitiesRules.withinSixMonth(taxCodeChangeDate)
 }
+

@@ -30,7 +30,8 @@ import play.api.test.Helpers._
 import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.CapabilityDetails
+import uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsControllerSpec.{allActivityData, overPaymentData}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
 import uk.gov.hmrc.singlecustomeraccountcapabilities.service.CapabilityDetailsService
 
 import java.time.LocalDate
@@ -59,46 +60,167 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
     super.beforeEach()
   }
 
-  "GET /" must {
+  "GET /activities" must {
     "return 200" in {
 
-      val capabilityDetails: Seq[CapabilityDetails] = Seq(
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2022, 5, 19),
-          descriptionContent = "Desc-1",
-          url = "url-1"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 4, 9),
-          descriptionContent = "Desc-2",
-          url = "url-2")
-      )
+      when(mockCapabilitiesService.retrieveAllActivitiesData(anyString())(any(), any())).thenReturn(Future.successful(allActivityData))
 
-      when(mockCapabilitiesService.retrieveCapabilitiesData(anyString())(any(), any())).thenReturn(Future.successful(capabilityDetails))
-
-      val result = controller.getCapabilitiesData("valid-nino")(fakeRequest)
+      val result = controller.getAllActivitiesData("valid-nino")(fakeRequest)
 
       whenReady(result) { _ =>
         status(result) mustBe OK
-        contentAsJson(result) mustBe Json.arr(
-          Json.obj(
-            "nino" -> Json.obj(
-              "hasNino" -> true,
-              "nino" -> "GG012345C"
+        contentAsJson(result) mustBe Json.obj(
+            "taxCalc" ->
+            Json.arr(
+              Json.obj(
+              "nino" -> Json.obj(
+                "hasNino" -> true,
+                "nino" -> "GG012345C"
+              ),
+              "date" -> "2023-02-05",
+              "descriptionContent" -> "Your tax calculation for the 2022-2023 is now available",
+              "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+              "activityHeading" -> "Your tax calculation"
+              )
             ),
-            "date" -> "2022-05-19",
-            "descriptionContent" -> "Desc-1",
-            "url" -> "url-1"
+            "taxCode" ->
+              Json.arr(
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-06-06",
+                  "descriptionContent" -> "Your tax code has changed - 7",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                ),
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-05-05",
+                  "descriptionContent" -> "Your tax code has changed - 1",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                ),
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-04-07",
+                  "descriptionContent" -> "Your tax code has changed - 6",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                ),
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-04-06",
+                  "descriptionContent" -> "Your tax code has changed - 2",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                ),
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-04-06",
+                  "descriptionContent" -> "Your tax code has changed - 5",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                ),
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-04-05",
+                  "descriptionContent" -> "Your tax code has changed - 4",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                ),
+                Json.obj(
+                  "nino" -> Json.obj(
+                    "hasNino" -> true,
+                    "nino" -> "GG012345C"
+                  ),
+                  "date" -> "2023-03-07",
+                  "descriptionContent" -> "Your tax code has changed - 3",
+                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                  "activityHeading" -> "Latest Tax code change"
+                )
           ),
-          Json.obj(
-            "nino" -> Json.obj(
-              "hasNino" -> true,
-              "nino" -> "GG012345C"
-            ),
-            "date" -> "2023-04-09",
-            "descriptionContent" -> "Desc-2",
-            "url" -> "url-2"
+          "childBenefit" ->
+            Json.arr(
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-05-05",
+                "descriptionContent" -> "HMRC paid you Child Benefit",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Recent Child Benefit payments"
+              ),
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-04-06",
+                "descriptionContent" -> "HMRC paid you Child Benefit",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Recent Child Benefit payments"
+              ),
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-04-06",
+                "descriptionContent" -> "HMRC paid you Child Benefit",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Recent Child Benefit payments"
+              ),
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-04-05",
+                "descriptionContent" -> "HMRC paid you Child Benefit",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Recent Child Benefit payments"
+              ),
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-03-07",
+                "descriptionContent" -> "HMRC paid you Child Benefit",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Recent Child Benefit payments"
+              )
+          ),
+          "payeIncome" ->
+            Json.arr(
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-04-05",
+                "descriptionContent" -> "Central Perk Coffee Ltd paid you PAYE income",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Your PAYE income for the current tax year"
+              )
           )
         )
       }
@@ -107,15 +229,175 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
 
     "return Empty List When capabilities not found with the nino" in {
 
-      when(mockCapabilitiesService.retrieveCapabilitiesData(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+      val emptyActivities = Activities(Seq.empty,Seq.empty,Seq.empty,Seq.empty)
 
-      val result = controller.getCapabilitiesData("invalid-nino")(fakeRequest)
+      when(mockCapabilitiesService.retrieveAllActivitiesData(anyString())(any(), any())).thenReturn(Future.successful(emptyActivities))
+
+      val result = controller.getAllActivitiesData("invalid-nino")(fakeRequest)
+      val emptyResult = Json.obj("taxCalc" -> Json.arr(),"taxCode" -> Json.arr(),"childBenefit" -> Json.arr(),"payeIncome" -> Json.arr())
 
       whenReady(result) { _ =>
         status(result) mustBe OK
-        contentAsJson(result) mustBe Json.arr()
+        contentAsJson(result) mustBe emptyResult
       }
+    }
+  }
 
+  "GET /actions" must {
+    "return 200" in {
+
+      when(mockCapabilitiesService.retrieveActionsData(anyString())(any(), any())).thenReturn(Future.successful(overPaymentData))
+
+      val result = controller.getAllActionsData("valid-nino")(fakeRequest)
+
+      whenReady(result) { _ =>
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.obj(
+          "taxCalc" ->
+            Json.arr(
+              Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-01-10",
+                "descriptionContent" -> "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+                "actionDescription" -> "Claim your tax refund",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Things for you to do"
+              )
+            )
+        )
+      }
+    }
+
+    "return Empty List When actions not found with the nino" in {
+
+      val emptyActivities = Actions(Seq.empty)
+
+      when(mockCapabilitiesService.retrieveActionsData(anyString())(any(), any())).thenReturn(Future.successful(emptyActivities))
+
+      val result = controller.getAllActionsData("invalid-nino")(fakeRequest)
+      val emptyResult = Json.obj("taxCalc" -> Json.arr())
+
+      whenReady(result) { _ =>
+        status(result) mustBe OK
+        contentAsJson(result) mustBe emptyResult
+      }
     }
   }
 }
+
+object CapabilityDetailsControllerSpec {
+  val allActivityData: Activities = {
+    Activities(
+      taxCalc = Seq(
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 2, 5),
+          descriptionContent = "Your tax calculation for the 2022-2023 is now available",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Your tax calculation")
+      ),
+      taxCode = Seq(
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 6, 6),
+          descriptionContent = "Your tax code has changed - 7",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023,5 , 5),
+          descriptionContent = "Your tax code has changed - 1",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 7),
+          descriptionContent = "Your tax code has changed - 6",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 6),
+          descriptionContent = "Your tax code has changed - 2",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 6),
+          descriptionContent = "Your tax code has changed - 5",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 5),
+          descriptionContent = "Your tax code has changed - 4",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 3, 7),
+          descriptionContent = "Your tax code has changed - 3",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Latest Tax code change"),
+      ),
+      childBenefit = Seq(
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 5, 5),
+          descriptionContent = "HMRC paid you Child Benefit",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Recent Child Benefit payments"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 6),
+          descriptionContent = "HMRC paid you Child Benefit",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Recent Child Benefit payments"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 6),
+          descriptionContent = "HMRC paid you Child Benefit",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Recent Child Benefit payments"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 5),
+          descriptionContent = "HMRC paid you Child Benefit",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Recent Child Benefit payments"),
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 3, 7),
+          descriptionContent = "HMRC paid you Child Benefit",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Recent Child Benefit payments"),
+      ),
+      payeIncome = Seq(
+        CapabilityDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023, 4, 5),
+          descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Your PAYE income for the current tax year")
+      )
+    )
+  }
+
+  val overPaymentData =
+    Actions(
+      taxCalc = Seq(
+        ActionDetails(
+          nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.of(2023,1,10),
+          descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
+          actionDescription = "Claim your tax refund",
+          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+          activityHeading = "Things for you to do")
+      )
+    )
+}
+
+
