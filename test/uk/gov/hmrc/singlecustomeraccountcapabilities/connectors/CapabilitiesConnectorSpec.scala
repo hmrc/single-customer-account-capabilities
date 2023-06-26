@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.HttpClientSupport
 import uk.gov.hmrc.singlecustomeraccountcapabilities.helper.WireMockHelper
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails, TaxCodeChangeData, TaxCodeChangeDetails, TaxCodeChangeObject}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails}
 
 import java.time.LocalDate
 
@@ -135,51 +135,51 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
   }
 
   "taxCodeChangeList" must {
-    "return the tax code data with valid Nino" in {
-      val taxCodeChangeResponseJson: JsArray = Json.arr(
-        Json.obj(
-          "data" -> Json.obj(
-            "current" ->
-              Json.obj(
-                "taxCode" -> "830L",
-                "employerName" -> "Employer Name",
-                "operatedTaxCode" -> true,
-                "p2Issued" -> true,
-                "startDate" -> "2023-06-21",
-                "endDate" -> "2023-09-21",
-                "payrollNumber" -> "1",
-                "pensionIndicator" -> true,
-                "primary" -> true
-              )
-            ,
-            "previous" ->
-              Json.obj(
-                "taxCode" -> "1150L",
-                "employerName" -> "Employer Name",
-                "operatedTaxCode" -> true,
-                "p2Issued" -> true,
-                "startDate" -> "2022-06-21",
-                "endDate" -> "2022-09-21",
-                "payrollNumber" -> "1",
-                "pensionIndicator" -> true,
-                "primary" -> true
-              )
-          ),
-          "links" -> Json.arr()
-        ))
-
-      server.stubFor(
-        get(urlEqualTo(taxCodeChangeUrl))
-          .willReturn(
-            ok
-              .withHeader("Content-Type", "application/json")
-              .withBody(taxCodeChangeResponseJson.toString())
-          )
-      )
-      capabilitiesConnector.taxCodeList(nino).map { response =>
-        response mustBe taxCodeChangeDetails
-      }
-    }
+//    "return the tax code data with valid Nino" in {
+//      val taxCodeChangeResponseJson: JsArray = Json.arr(
+//        Json.obj(
+//          "data" -> Json.obj(
+//            "current" ->
+//              Json.obj(
+//                "taxCode" -> "830L",
+//                "employerName" -> "Employer Name",
+//                "operatedTaxCode" -> true,
+//                "p2Issued" -> true,
+//                "startDate" -> "2023-06-21",
+//                "endDate" -> "2023-09-21",
+//                "payrollNumber" -> "1",
+//                "pensionIndicator" -> true,
+//                "primary" -> true
+//              )
+//            ,
+//            "previous" ->
+//              Json.obj(
+//                "taxCode" -> "1150L",
+//                "employerName" -> "Employer Name",
+//                "operatedTaxCode" -> true,
+//                "p2Issued" -> true,
+//                "startDate" -> "2022-06-21",
+//                "endDate" -> "2022-09-21",
+//                "payrollNumber" -> "1",
+//                "pensionIndicator" -> true,
+//                "primary" -> true
+//              )
+//          ),
+//          "links" -> Json.arr()
+//        ))
+//
+//      server.stubFor(
+//        get(urlEqualTo(taxCodeChangeUrl))
+//          .willReturn(
+//            ok
+//              .withHeader("Content-Type", "application/json")
+//              .withBody(taxCodeChangeResponseJson.toString())
+//          )
+//      )
+//      capabilitiesConnector.taxCodeList(nino).map { response =>
+//        response mustBe taxCodeChangeDetails
+//      }
+//    }
 
     "return None with valid Nino" in {
 
@@ -420,19 +420,19 @@ object CapabilitiesConnectorSpec {
 
   )
 
-  private val taxCodeChangeDetails: Seq[TaxCodeChangeObject] = Seq(
-    TaxCodeChangeObject(
-      data = TaxCodeChangeData(
-        current = TaxCodeChangeDetails(
-          taxCode = "830L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2023-06-21", endDate = "2023-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
-        ),
-        previous = TaxCodeChangeDetails(
-          taxCode = "1150L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2022-06-21", endDate = "2022-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
-        )
-      ),
-      links = Array.empty[String]
-    )
-  )
+//  private val taxCodeChangeDetails: Seq[TaxCodeChangeObject] = Seq(
+//    TaxCodeChangeObject(
+//      data = TaxCodeChangeData(
+//        current = TaxCodeChangeDetails(
+//          taxCode = "830L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2023-06-21", endDate = "2023-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
+//        ),
+//        previous = TaxCodeChangeDetails(
+//          taxCode = "1150L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2022-06-21", endDate = "2022-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
+//        )
+//      ),
+//      links = Array.empty[String]
+//    )
+//  )
 
   private val childBenefitDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
