@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.singlecustomeraccountcapabilities.config.AppConfig
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, CapabilityDetails, TaxCodeChangeObject}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,11 +49,12 @@ class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpCl
     }
   }
 
-  def taxCodeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
+  def taxCodeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[TaxCodeChangeObject]] = {
     httpClientV2.get(url"${taxCodeEndpoint.format(nino)}")
-      .execute[Option[Seq[CapabilityDetails]]]
+      .execute[Option[Seq[TaxCodeChangeObject]]]
       .map {
-        case Some(capabilityDetails) => capabilityDetails
+        case Some(taxCodedata) =>
+          taxCodedata
         case _ => Seq.empty
       }.recover {
       case ex: Exception =>

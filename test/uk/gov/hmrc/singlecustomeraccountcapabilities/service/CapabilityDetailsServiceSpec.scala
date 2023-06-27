@@ -27,7 +27,7 @@ import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails, TaxCodeChangeData, TaxCodeChangeDetails, TaxCodeChangeObject}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -96,8 +96,8 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
-        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, times(8)).withinSixMonth(any())
+        verify(mockCapabilityDetailsRules, times(7)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(7)).withinSixMonth(any())
 
         result mustBe Activities(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
       }
@@ -117,7 +117,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
-        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(7)).withinTaxYear(any())
         verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
 
         result mustBe orderedActivities
@@ -139,8 +139,8 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
-        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, times(8)).withinSixMonth(any())
+        verify(mockCapabilityDetailsRules, times(7)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(7)).withinSixMonth(any())
 
         result mustBe orderedActivities
       }
@@ -161,7 +161,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
-        verify(mockCapabilityDetailsRules, times(8)).withinTaxYear(any())
+        verify(mockCapabilityDetailsRules, times(7)).withinTaxYear(any())
         verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
 
         result mustBe orderedActivities
@@ -324,31 +324,24 @@ object CapabilityDetailsServiceSpec {
 
   )
 
-  val unOrderedTaxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023, 5, 5),
-      descriptionContent = "Your tax code has changed - 1",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023, 6, 6),
-      descriptionContent = "Your tax code has changed - 2",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change")
+  val unOrderedTaxCodeChangeDetails: Seq[TaxCodeChangeObject] = Seq(
+    TaxCodeChangeObject(
+      data = TaxCodeChangeData(
+        current = TaxCodeChangeDetails(
+          taxCode = "830L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = LocalDate.of(2023, 5, 21).toString, endDate = LocalDate.of(2023, 10, 21).toString, payrollNumber = "1", pensionIndicator = true, primary = true
+        ),
+        previous = TaxCodeChangeDetails(
+          taxCode = "1150L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = LocalDate.now.minusMonths(1).minusDays(2).toString, endDate = "2018-06-26", payrollNumber = "1", pensionIndicator = true, primary = true
+        )
+      ),
+      links = Array.empty[String]
+    )
   )
 
   val orderedByDateTaxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023, 6, 6),
-      descriptionContent = "Your tax code has changed - 2",
-      url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-      activityHeading = "Latest Tax code change"),
-    CapabilityDetails(
-      nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023, 5, 5),
+      date = LocalDate.of(2023, 5, 21),
       descriptionContent = "Your tax code has changed - 1",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Latest Tax code change")

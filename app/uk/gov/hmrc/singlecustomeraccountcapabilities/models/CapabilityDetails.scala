@@ -44,3 +44,44 @@ object ActionDetails {
   implicit val format: Format[ActionDetails] = Json.format[ActionDetails]
 
 }
+
+case class TaxCodeChangeDetails(
+                                 taxCode: String,
+                                 employerName: String,
+                                 operatedTaxCode: Boolean,
+                                 p2Issued: Boolean,
+                                 startDate: String,
+                                 endDate: String,
+                                 payrollNumber: String,
+                                 pensionIndicator: Boolean,
+                                 primary: Boolean
+                               )
+
+object TaxCodeChangeDetails {
+
+  implicit val format: Format[TaxCodeChangeDetails] = Json.format[TaxCodeChangeDetails]
+
+}
+
+case class TaxCodeChangeData (
+                               current: TaxCodeChangeDetails,
+                               previous: TaxCodeChangeDetails
+                             )
+
+object TaxCodeChangeData {
+
+  implicit val format: Format[TaxCodeChangeData] = Json.format[TaxCodeChangeData]
+
+}
+
+case class TaxCodeChangeObject (
+                                 data: TaxCodeChangeData,
+                                 links: Array[String]
+                               )
+
+object TaxCodeChangeObject {
+
+  implicit val format: Format[TaxCodeChangeObject] = Json.format[TaxCodeChangeObject]
+
+}
+
