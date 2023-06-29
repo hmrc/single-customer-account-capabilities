@@ -33,6 +33,7 @@ class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpCl
   private val capabilitiesEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/details/NINO/%s"
   private val taxCalcEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/tax-calc/NINO/%s"
   private val taxCodeEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/tax-code-change/NINO/%s"
+  private val taxCodeApiEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/tax-code-change-api/NINO/%s"
   private val childBenefitEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/child-benefit/NINO/%s"
   private val payeIncomeEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/activities/paye-income/NINO/%s"
   private val actionTaxCalcEndpoint = s"${appConfig.capabilitiesDataBaseUrl}/individuals/actions/tax-calc/NINO/%s"
@@ -63,8 +64,22 @@ class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpCl
     }
   }
 
-  def taxCodeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[TaxCodeChangeObject]] = {
+  def taxCodeChangeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
     httpClientV2.get(url"${taxCodeEndpoint.format(nino)}")
+      .execute[Option[Seq[CapabilityDetails]]]
+      .map {
+        case Some(taxCodedata) =>
+          taxCodedata
+        case _ => Seq.empty
+      }.recover {
+      case ex: Exception =>
+        logger.error(s"[CapabilityConnector][taxCodeList] exception: ${ex.getMessage}")
+        Seq.empty
+    }
+  }
+
+  def taxCodeChangeApi(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[TaxCodeChangeObject]] = {
+    httpClientV2.get(url"${taxCodeApiEndpoint.format(nino)}")
       .execute[Option[Seq[TaxCodeChangeObject]]]
       .map {
         case Some(taxCodedata) =>

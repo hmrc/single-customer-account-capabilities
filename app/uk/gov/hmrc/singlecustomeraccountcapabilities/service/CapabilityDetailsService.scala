@@ -47,17 +47,18 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
 
     for {
       taxCalc <- capabilitiesConnector.taxCalcList(nino)
-      taxDetails <- capabilitiesConnector.taxCodeList(nino)
+      taxDetails <- capabilitiesConnector.taxCodeChangeApi(nino)
       childBenefit <- capabilitiesConnector.childBenefitList(nino)
       payeIncome <- capabilitiesConnector.payeIncomeList(nino)
     }
     yield {taxDetails match {
       case Seq(_) if (taxDetails.length > 0) =>
-        Activities(sortFilter(taxCalc), sortFilter(Seq(CapabilityDetails(nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.parse(taxDetails.head.data.current.startDate, formatter),
-          descriptionContent = "Your tax code has changed - 1",
+        val taxCodeChangeList = taxDetails.map(taxCodeChange => CapabilityDetails(nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.parse(taxCodeChange.data.current.startDate,formatter),
+          descriptionContent = s"Your tax code for ${taxCodeChange.data.current.employerName} has changed",
           url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"))),
+          activityHeading = "Latest Tax code change"))
+        Activities(sortFilter(taxCalc), sortFilter(taxCodeChangeList),
           sortFilter(childBenefit), sortFilter(payeIncome))
       case _ =>
         Activities(sortFilter(taxCalc), Seq.empty,
