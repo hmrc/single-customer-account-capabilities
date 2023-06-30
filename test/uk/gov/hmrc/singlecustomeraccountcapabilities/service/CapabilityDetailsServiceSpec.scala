@@ -134,13 +134,13 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return empty Seq if capabilitiesConnector returns empty Seq" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
-      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
+      when(mockCapabilitiesConnector.taxCodeChangeApi(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
 
       capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
         verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
-        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeChangeApi(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
@@ -154,7 +154,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return empty Seq if capabilityDetails does not pass the rules" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChangeApi(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
@@ -162,7 +162,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
 
       capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
         verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
-        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeChangeApi(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
@@ -176,14 +176,14 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails withinTaxYear" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChangeApi(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
 
       capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
         verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
-        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeChangeApi(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
@@ -197,7 +197,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return ordered list of Activities if retrieved unorderedCapabilityDetails withinSixMonth" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChangeApi(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
@@ -205,7 +205,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
 
       capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
         verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
-        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeChangeApi(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
@@ -219,7 +219,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return ordered list of Activities if retrieved unorderedCapabilityDetails both withinTaxYear and withinSixMonth" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChangeApi(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
@@ -227,7 +227,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
 
       capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
         verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
-        verify(mockCapabilitiesConnector, times(1)).taxCodeList(anyString())(any(), any())
+        verify(mockCapabilitiesConnector, times(1)).taxCodeChangeApi(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).childBenefitList(anyString())(any(), any())
         verify(mockCapabilitiesConnector, times(1)).payeIncomeList(anyString())(any(), any())
 
@@ -412,7 +412,7 @@ object CapabilityDetailsServiceSpec {
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 5, 21),
-      descriptionContent = "Your tax code has changed - 1",
+      descriptionContent = "Your tax code for Employer Name has changed",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Latest Tax code change")
   )

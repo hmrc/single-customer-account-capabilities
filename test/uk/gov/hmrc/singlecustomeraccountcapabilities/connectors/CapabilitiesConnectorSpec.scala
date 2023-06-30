@@ -189,7 +189,7 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
             notFound
           )
       )
-      capabilitiesConnector.taxCodeList(nino).map { response =>
+      capabilitiesConnector.taxCodeChangeList(nino).map { response =>
         response mustBe Seq.empty
       }
     }
