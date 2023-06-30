@@ -82,52 +82,52 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
     }
   }
 
-  "taxCodeChangeList" must {
-//    "return the tax code data with valid Nino" in {
-//      val taxCodeChangeResponseJson: JsArray = Json.arr(
-//        Json.obj(
-//          "data" -> Json.obj(
-//            "current" ->
-//              Json.obj(
-//                "taxCode" -> "830L",
-//                "employerName" -> "Employer Name",
-//                "operatedTaxCode" -> true,
-//                "p2Issued" -> true,
-//                "startDate" -> "2023-06-21",
-//                "endDate" -> "2023-09-21",
-//                "payrollNumber" -> "1",
-//                "pensionIndicator" -> true,
-//                "primary" -> true
-//              )
-//            ,
-//            "previous" ->
-//              Json.obj(
-//                "taxCode" -> "1150L",
-//                "employerName" -> "Employer Name",
-//                "operatedTaxCode" -> true,
-//                "p2Issued" -> true,
-//                "startDate" -> "2022-06-21",
-//                "endDate" -> "2022-09-21",
-//                "payrollNumber" -> "1",
-//                "pensionIndicator" -> true,
-//                "primary" -> true
-//              )
-//          ),
-//          "links" -> Json.arr()
-//        ))
-//
-//      server.stubFor(
-//        get(urlEqualTo(taxCodeChangeUrl))
-//          .willReturn(
-//            ok
-//              .withHeader("Content-Type", "application/json")
-//              .withBody(taxCodeChangeResponseJson.toString())
-//          )
-//      )
-//      capabilitiesConnector.taxCodeList(nino).map { response =>
-//        response mustBe taxCodeChangeDetails
-//      }
-//    }
+  "taxCodeChange" must {
+    //    "return the tax code data with valid Nino" in {
+    //      val taxCodeChangeResponseJson: JsArray = Json.arr(
+    //        Json.obj(
+    //          "data" -> Json.obj(
+    //            "current" ->
+    //              Json.obj(
+    //                "taxCode" -> "830L",
+    //                "employerName" -> "Employer Name",
+    //                "operatedTaxCode" -> true,
+    //                "p2Issued" -> true,
+    //                "startDate" -> "2023-06-21",
+    //                "endDate" -> "2023-09-21",
+    //                "payrollNumber" -> "1",
+    //                "pensionIndicator" -> true,
+    //                "primary" -> true
+    //              )
+    //            ,
+    //            "previous" ->
+    //              Json.obj(
+    //                "taxCode" -> "1150L",
+    //                "employerName" -> "Employer Name",
+    //                "operatedTaxCode" -> true,
+    //                "p2Issued" -> true,
+    //                "startDate" -> "2022-06-21",
+    //                "endDate" -> "2022-09-21",
+    //                "payrollNumber" -> "1",
+    //                "pensionIndicator" -> true,
+    //                "primary" -> true
+    //              )
+    //          ),
+    //          "links" -> Json.arr()
+    //        ))
+    //
+    //      server.stubFor(
+    //        get(urlEqualTo(taxCodeChangeUrl))
+    //          .willReturn(
+    //            ok
+    //              .withHeader("Content-Type", "application/json")
+    //              .withBody(taxCodeChangeResponseJson.toString())
+    //          )
+    //      )
+    //      capabilitiesConnector.taxCodeList(nino).map { response =>
+    //        response mustBe taxCodeChangeDetails
+    //      }
+    //    }
 
     "return None with valid Nino" in {
 
@@ -137,11 +137,12 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
             notFound
           )
       )
-      capabilitiesConnector.taxCodeList(nino).map { response =>
-        response mustBe Seq.empty
+      capabilitiesConnector.taxCodeChange(nino).map { response =>
+        response mustBe None
       }
     }
   }
+
   "childBenefitList" must {
     "return the child benefit data with valid Nino" in {
       val childBenefitResponseJson: JsArray = Json.arr(
@@ -353,48 +354,48 @@ object CapabilitiesConnectorSpec {
 
   )
 
-//  private val taxCodeChangeDetails: Seq[TaxCodeChangeObject] = Seq(
-//    TaxCodeChangeObject(
-//      data = TaxCodeChangeData(
-//        current = TaxCodeChangeDetails(
-//          taxCode = "830L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2023-06-21", endDate = "2023-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
-//        ),
-//        previous = TaxCodeChangeDetails(
-//          taxCode = "1150L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2022-06-21", endDate = "2022-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
-//        )
-//      ),
-//      links = Array.empty[String]
-//    )
-//  )
+  //  private val taxCodeChangeDetails: Seq[TaxCodeChangeObject] = Seq(
+  //    TaxCodeChangeObject(
+  //      data = TaxCodeChangeData(
+  //        current = TaxCodeChangeDetails(
+  //          taxCode = "830L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2023-06-21", endDate = "2023-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
+  //        ),
+  //        previous = TaxCodeChangeDetails(
+  //          taxCode = "1150L", employerName = "Employer Name", operatedTaxCode = true, p2Issued = true, startDate = "2022-06-21", endDate = "2022-09-21", payrollNumber = "1", pensionIndicator = true, primary = true
+  //        )
+  //      ),
+  //      links = Array.empty[String]
+  //    )
+  //  )
 
   private val childBenefitDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,5,5),
+      date = LocalDate.of(2023, 5, 5),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,6),
+      date = LocalDate.of(2023, 4, 6),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,3,7),
+      date = LocalDate.of(2023, 3, 7),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,5),
+      date = LocalDate.of(2023, 4, 5),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Recent Child Benefit payments"),
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,6),
+      date = LocalDate.of(2023, 4, 6),
       descriptionContent = "HMRC paid you Child Benefit",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Recent Child Benefit payments")
@@ -403,7 +404,7 @@ object CapabilitiesConnectorSpec {
   private val payeIncomeDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,4,5),
+      date = LocalDate.of(2023, 4, 5),
       descriptionContent = "Central Perk Coffee Ltd paid you PAYE income",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Your PAYE income for the current tax year")
@@ -412,7 +413,7 @@ object CapabilitiesConnectorSpec {
   private val overPayment = Seq(
     ActionDetails(
       nino = Nino(true, Some("GG012345C")),
-      date = LocalDate.of(2023,1,10),
+      date = LocalDate.of(2023, 1, 10),
       descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
       actionDescription = "Claim your tax refund",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
@@ -422,7 +423,7 @@ object CapabilitiesConnectorSpec {
   private val underPayment = Seq(
     ActionDetails(
       nino = Nino(true, Some("AA999999A")),
-      date = LocalDate.of(2023,1,10),
+      date = LocalDate.of(2023, 1, 10),
       descriptionContent = "You did not pay enough tax in the 2022 to 2023 tax year. You must pay HMRC by 31 January 2023.",
       actionDescription = "Make a tax payment",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",

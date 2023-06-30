@@ -1,5 +1,5 @@
 # microservice specific routes
 
-GET        /activities/:nino                             uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getAllActivitiesData(nino: String)
+GET        /activities/:nino        uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getAllActivitiesData(nino: String)
 
-GET        /actions/:nino                                uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getAllActionsData(nino: String)
+GET        /actions/:nino           uk.gov.hmrc.singlecustomeraccountcapabilities.controllers.CapabilityDetailsController.getAllActionsData(nino: String)

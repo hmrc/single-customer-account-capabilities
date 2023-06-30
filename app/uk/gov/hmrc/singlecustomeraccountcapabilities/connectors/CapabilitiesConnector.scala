@@ -17,7 +17,6 @@
 package uk.gov.hmrc.singlecustomeraccountcapabilities.connectors
 
 
-
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -49,19 +48,16 @@ class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpCl
     }
   }
 
-  def taxCodeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[TaxCodeChangeObject]] = {
+  def taxCodeChange(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[TaxCodeChangeObject]] = {
     httpClientV2.get(url"${taxCodeEndpoint.format(nino)}")
-      .execute[Option[Seq[TaxCodeChangeObject]]]
-      .map {
-        case Some(taxCodedata) =>
-          taxCodedata
-        case _ => Seq.empty
-      }.recover {
-      case ex: Exception =>
-        logger.error(s"[CapabilityConnector][taxCodeList] exception: ${ex.getMessage}")
-        Seq.empty
-    }
+      .execute[Option[TaxCodeChangeObject]]
+      .recover {
+        case ex: Exception =>
+          logger.error(s"[CapabilityConnector][taxCodeChange] exception: ${ex.getMessage}")
+          None
+      }
   }
+
   def childBenefitList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
     httpClientV2.get(url"${childBenefitEndpoint.format(nino)}")
       .execute[Option[Seq[CapabilityDetails]]]
@@ -74,6 +70,7 @@ class CapabilitiesConnector @Inject()(appConfig: AppConfig, httpClientV2: HttpCl
         Seq.empty
     }
   }
+
   def payeIncomeList(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] = {
     httpClientV2.get(url"${payeIncomeEndpoint.format(nino)}")
       .execute[Option[Seq[CapabilityDetails]]]
