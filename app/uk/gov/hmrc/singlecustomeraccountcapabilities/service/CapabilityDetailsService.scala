@@ -19,7 +19,7 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails, TaxCodeChangeObject}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -52,13 +52,13 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
       payeIncome <- capabilitiesConnector.payeIncomeList(nino)
     }
     yield {taxDetails match {
-      case Seq(_) if (taxDetails.length > 0) =>
-        val taxCodeChangeList = taxDetails.map(taxCodeChange => CapabilityDetails(nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.parse(taxCodeChange.data.current.startDate,formatter),
-          descriptionContent = s"Your tax code for ${taxCodeChange.data.current.employerName} has changed",
+      case taxCodeChangeObject: TaxCodeChangeObject =>
+        val taxCodeChange = CapabilityDetails(nino = Nino(true, Some("GG012345C")),
+          date = LocalDate.parse(taxDetails.data.current.startDate,formatter),
+          descriptionContent = s"Your tax code for ${taxDetails.data.current.employerName} has changed",
           url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"))
-        Activities(sortFilter(taxCalc), sortFilter(taxCodeChangeList),
+          activityHeading = "Latest Tax code change")
+        Activities(sortFilter(taxCalc), sortFilter(Seq(taxCodeChange)),
           sortFilter(childBenefit), sortFilter(payeIncome))
       case _ =>
         Activities(sortFilter(taxCalc), Seq.empty,
