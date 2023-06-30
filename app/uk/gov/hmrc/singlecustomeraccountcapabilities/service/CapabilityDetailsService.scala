@@ -47,7 +47,7 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
 
     for {
       taxCalc <- capabilitiesConnector.taxCalcList(nino)
-      taxDetails <- capabilitiesConnector.taxCodeChangeApi(nino)
+      taxDetails <- capabilitiesConnector.taxCodeChange(nino)
       childBenefit <- capabilitiesConnector.childBenefitList(nino)
       payeIncome <- capabilitiesConnector.payeIncomeList(nino)
     }
