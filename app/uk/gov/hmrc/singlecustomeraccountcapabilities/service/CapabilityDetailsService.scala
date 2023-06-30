@@ -19,7 +19,7 @@ package uk.gov.hmrc.singlecustomeraccountcapabilities.service
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails, TaxCodeChangeObject}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models._
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -28,13 +28,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
 class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConnector, capabilitiesRules: CapabilityDetailsRules) {
-
-
-  def retrieveCapabilitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[CapabilityDetails]] =
-    capabilitiesConnector.list(nino).map { capabilityDetails =>
-      capabilityDetails.filter(capabilityDetail => withinValidTimeFrame(capabilityDetail.date))
-        .sortWith((x, y) => x.date.isAfter(y.date))
-    }
 
   def retrieveAllActivitiesData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Activities] = {
 
@@ -46,24 +39,32 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     for {
-      taxCalc <- capabilitiesConnector.taxCalcList(nino)
-      taxDetails <- capabilitiesConnector.taxCodeChange(nino)
-      childBenefit <- capabilitiesConnector.childBenefitList(nino)
-      payeIncome <- capabilitiesConnector.payeIncomeList(nino)
+      taxCalculations <- capabilitiesConnector.taxCalcList(nino)
+      optTaxCodeChange <- capabilitiesConnector.taxCodeChange(nino)
+      childBenefits <- capabilitiesConnector.childBenefitList(nino)
+      payeIncomes <- capabilitiesConnector.payeIncomeList(nino)
     }
-    yield {taxDetails match {
-      case taxCodeChangeObject: TaxCodeChangeObject =>
-        val taxCodeChange = CapabilityDetails(nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.parse(taxDetails.data.current.startDate,formatter),
-          descriptionContent = s"Your tax code for ${taxDetails.data.current.employerName} has changed",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change")
-        Activities(sortFilter(taxCalc), sortFilter(Seq(taxCodeChange)),
-          sortFilter(childBenefit), sortFilter(payeIncome))
-      case _ =>
-        Activities(sortFilter(taxCalc), Seq.empty,
-          sortFilter(childBenefit), sortFilter(payeIncome))
-    }}
+    yield {
+      optTaxCodeChange match {
+        case Some(tcc) =>
+          val startDate = LocalDate.parse(tcc.data.current.startDate, formatter)
+          if (withinValidTimeFrame(startDate)) {
+            val capabilityDetails = CapabilityDetails(nino = Nino(true, Some("GG012345C")),
+              date = startDate,
+              descriptionContent = s"Your tax code for ${tcc.data.current.employerName} has changed",
+              url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+              activityHeading = "Latest Tax code change")
+            Activities(sortFilter(taxCalculations), Some(capabilityDetails),
+              sortFilter(childBenefits), sortFilter(payeIncomes))
+          } else {
+            Activities(sortFilter(taxCalculations), None,
+              sortFilter(childBenefits), sortFilter(payeIncomes))
+          }
+        case _ =>
+          Activities(sortFilter(taxCalculations), None,
+            sortFilter(childBenefits), sortFilter(payeIncomes))
+      }
+    }
   }
 
   def retrieveActionsData(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Actions] = {
@@ -73,12 +74,7 @@ class CapabilityDetailsService @Inject()(capabilitiesConnector: CapabilitiesConn
         .sortWith((x, y) => x.date.isAfter(y.date))
     }
 
-    for {
-      taxCalc <- capabilitiesConnector.actionTaxCalcList(nino)
-    }
-    yield {
-      Actions(sortFilter(taxCalc))
-    }
+    capabilitiesConnector.actionTaxCalcList(nino).map(actionDetails => Actions(sortFilter(actionDetails)))
   }
 
   private def withinValidTimeFrame(taxCodeChangeDate: LocalDate): Boolean =

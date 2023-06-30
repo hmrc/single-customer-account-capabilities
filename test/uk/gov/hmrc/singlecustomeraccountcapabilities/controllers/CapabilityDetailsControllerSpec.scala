@@ -60,70 +60,6 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
     super.beforeEach()
   }
 
-  "GET /" must {
-    "return 200" in {
-
-      val capabilityDetails: Seq[CapabilityDetails] = Seq(
-        CapabilityDetails(
-          nino = Nino(hasNino = true, Some("GG012345C")),
-          date = LocalDate.of(2022, 5, 19),
-          descriptionContent = "Desc-1",
-          url = "url-1",
-          activityHeading = "activityHeading-1"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 4, 9),
-          descriptionContent = "Desc-2",
-          url = "url-2",
-          activityHeading = "activityHeading-2")
-      )
-
-      when(mockCapabilitiesService.retrieveCapabilitiesData(anyString())(any(), any())).thenReturn(Future.successful(capabilityDetails))
-
-      val result = controller.getCapabilitiesData("valid-nino")(fakeRequest)
-
-      whenReady(result) { _ =>
-        status(result) mustBe OK
-        contentAsJson(result) mustBe Json.arr(
-          Json.obj(
-            "nino" -> Json.obj(
-              "hasNino" -> true,
-              "nino" -> "GG012345C"
-            ),
-            "date" -> "2022-05-19",
-            "descriptionContent" -> "Desc-1",
-            "url" -> "url-1",
-            "activityHeading" -> "activityHeading-1"
-          ),
-          Json.obj(
-            "nino" -> Json.obj(
-              "hasNino" -> true,
-              "nino" -> "GG012345C"
-            ),
-            "date" -> "2023-04-09",
-            "descriptionContent" -> "Desc-2",
-            "url" -> "url-2",
-            "activityHeading" -> "activityHeading-2"
-          )
-        )
-      }
-
-    }
-
-    "return Empty List When capabilities not found with the nino" in {
-
-      when(mockCapabilitiesService.retrieveCapabilitiesData(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
-
-      val result = controller.getCapabilitiesData("invalid-nino")(fakeRequest)
-
-      whenReady(result) { _ =>
-        status(result) mustBe OK
-        contentAsJson(result) mustBe Json.arr()
-      }
-
-    }
-  }
-
   "GET /activities" must {
     "return 200" in {
 
@@ -134,92 +70,30 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
       whenReady(result) { _ =>
         status(result) mustBe OK
         contentAsJson(result) mustBe Json.obj(
-            "taxCalc" ->
+          "taxCalc" ->
             Json.arr(
               Json.obj(
+                "nino" -> Json.obj(
+                  "hasNino" -> true,
+                  "nino" -> "GG012345C"
+                ),
+                "date" -> "2023-02-05",
+                "descriptionContent" -> "Your tax calculation for the 2022-2023 is now available",
+                "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
+                "activityHeading" -> "Your tax calculation"
+              )
+            ),
+          "taxCode" ->
+            Json.obj(
               "nino" -> Json.obj(
                 "hasNino" -> true,
                 "nino" -> "GG012345C"
               ),
-              "date" -> "2023-02-05",
-              "descriptionContent" -> "Your tax calculation for the 2022-2023 is now available",
+              "date" -> "2023-06-06",
+              "descriptionContent" -> "Your tax code has changed",
               "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-              "activityHeading" -> "Your tax calculation"
-              )
+              "activityHeading" -> "Latest Tax code change"
             ),
-            "taxCode" ->
-              Json.arr(
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-06-06",
-                  "descriptionContent" -> "Your tax code has changed - 7",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                ),
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-05-05",
-                  "descriptionContent" -> "Your tax code has changed - 1",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                ),
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-04-07",
-                  "descriptionContent" -> "Your tax code has changed - 6",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                ),
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-04-06",
-                  "descriptionContent" -> "Your tax code has changed - 2",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                ),
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-04-06",
-                  "descriptionContent" -> "Your tax code has changed - 5",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                ),
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-04-05",
-                  "descriptionContent" -> "Your tax code has changed - 4",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                ),
-                Json.obj(
-                  "nino" -> Json.obj(
-                    "hasNino" -> true,
-                    "nino" -> "GG012345C"
-                  ),
-                  "date" -> "2023-03-07",
-                  "descriptionContent" -> "Your tax code has changed - 3",
-                  "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-                  "activityHeading" -> "Latest Tax code change"
-                )
-          ),
           "childBenefit" ->
             Json.arr(
               Json.obj(
@@ -272,7 +146,7 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
                 "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
                 "activityHeading" -> "Recent Child Benefit payments"
               )
-          ),
+            ),
           "payeIncome" ->
             Json.arr(
               Json.obj(
@@ -285,7 +159,7 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
                 "url" -> "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
                 "activityHeading" -> "Your PAYE income for the current tax year"
               )
-          )
+            )
         )
       }
 
@@ -293,12 +167,12 @@ class CapabilityDetailsControllerSpec extends AsyncWordSpec with Matchers with M
 
     "return Empty List When capabilities not found with the nino" in {
 
-      val emptyActivities = Activities(Seq.empty,Seq.empty,Seq.empty,Seq.empty)
+      val emptyActivities = Activities(Seq.empty, None, Seq.empty, Seq.empty)
 
       when(mockCapabilitiesService.retrieveAllActivitiesData(anyString())(any(), any())).thenReturn(Future.successful(emptyActivities))
 
       val result = controller.getAllActivitiesData("invalid-nino")(fakeRequest)
-      val emptyResult = Json.obj("taxCalc" -> Json.arr(),"taxCode" -> Json.arr(),"childBenefit" -> Json.arr(),"payeIncome" -> Json.arr())
+      val emptyResult = Json.obj("taxCalc" -> Json.arr(), "childBenefit" -> Json.arr(), "payeIncome" -> Json.arr())
 
       whenReady(result) { _ =>
         status(result) mustBe OK
@@ -363,50 +237,13 @@ object CapabilityDetailsControllerSpec {
           url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
           activityHeading = "Your tax calculation")
       ),
-      taxCode = Seq(
-        CapabilityDetails(
+      taxCode =
+        Some(CapabilityDetails(
           nino = Nino(true, Some("GG012345C")),
           date = LocalDate.of(2023, 6, 6),
-          descriptionContent = "Your tax code has changed - 7",
+          descriptionContent = "Your tax code has changed",
           url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023,5 , 5),
-          descriptionContent = "Your tax code has changed - 1",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 4, 7),
-          descriptionContent = "Your tax code has changed - 6",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 4, 6),
-          descriptionContent = "Your tax code has changed - 2",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 4, 6),
-          descriptionContent = "Your tax code has changed - 5",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 4, 5),
-          descriptionContent = "Your tax code has changed - 4",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-        CapabilityDetails(
-          nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023, 3, 7),
-          descriptionContent = "Your tax code has changed - 3",
-          url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
-          activityHeading = "Latest Tax code change"),
-      ),
+          activityHeading = "Latest Tax code change")),
       childBenefit = Seq(
         CapabilityDetails(
           nino = Nino(true, Some("GG012345C")),
@@ -450,12 +287,12 @@ object CapabilityDetailsControllerSpec {
     )
   }
 
-  val overPaymentData =
+  val overPaymentData: Actions =
     Actions(
       taxCalc = Seq(
         ActionDetails(
           nino = Nino(true, Some("GG012345C")),
-          date = LocalDate.of(2023,1,10),
+          date = LocalDate.of(2023, 1, 10),
           descriptionContent = "You paid too much tax in the 2022 to 2023 tax year. HMRC owes you a £84.23 refund",
           actionDescription = "Claim your tax refund",
           url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",

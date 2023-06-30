@@ -27,7 +27,7 @@ import play.api.{Application, inject}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.singlecustomeraccountcapabilities.connectors.CapabilitiesConnector
-import uk.gov.hmrc.singlecustomeraccountcapabilities.models.{ActionDetails, Actions, Activities, CapabilityDetails, TaxCodeChangeData, TaxCodeChangeDetails, TaxCodeChangeObject}
+import uk.gov.hmrc.singlecustomeraccountcapabilities.models._
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -59,82 +59,12 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     super.beforeEach()
   }
 
-  "retrieveCapabilitiesData" must {
-    "return empty Seq if capabilitiesConnector returns empty Seq" in {
-
-      when(mockCapabilitiesConnector.list(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
-
-      capabilityDetailsService.retrieveCapabilitiesData("nino-for-empty-list").map { result =>
-        verify(mockCapabilitiesConnector, times(1)).list(anyString())(any(), any())
-        verify(mockCapabilityDetailsRules, never()).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
-        result mustBe Seq.empty
-      }
-
-    }
-
-    "return empty Seq if capabilityDetails does not pass the rules" in {
-
-      when(mockCapabilitiesConnector.list(anyString())(any(), any())).thenReturn(Future.successful(unOrderedCapabilityDetails))
-      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
-      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(false)
-
-      capabilityDetailsService.retrieveCapabilitiesData("nino-for-empty-list").map { result =>
-        verify(mockCapabilitiesConnector, times(1)).list(anyString())(any(), any())
-        verify(mockCapabilityDetailsRules, times(unOrderedCapabilityDetails.size)).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, times(unOrderedCapabilityDetails.size)).withinSixMonth(any())
-        result mustBe Seq.empty
-      }
-    }
-
-    "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails withinTaxYear" in {
-
-      when(mockCapabilitiesConnector.list(anyString())(any(), any())).thenReturn(Future.successful(unOrderedCapabilityDetails))
-      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
-
-      capabilityDetailsService.retrieveCapabilitiesData("nino-for-empty-list").map { result =>
-        verify(mockCapabilitiesConnector, times(1)).list(anyString())(any(), any())
-        verify(mockCapabilityDetailsRules, times(unOrderedCapabilityDetails.size)).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
-        result mustBe orderedByDateCapabilityDetails
-      }
-    }
-
-    "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails withinSixMonth" in {
-
-      when(mockCapabilitiesConnector.list(anyString())(any(), any())).thenReturn(Future.successful(unOrderedCapabilityDetails))
-      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
-      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(true)
-
-      capabilityDetailsService.retrieveCapabilitiesData("nino-for-empty-list").map { result =>
-        verify(mockCapabilitiesConnector, times(1)).list(anyString())(any(), any())
-        verify(mockCapabilityDetailsRules, times(unOrderedCapabilityDetails.size)).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, times(unOrderedCapabilityDetails.size)).withinSixMonth(any())
-        result mustBe orderedByDateCapabilityDetails
-      }
-    }
-
-    "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails both withinTaxYear and withinSixMonth" in {
-
-      when(mockCapabilitiesConnector.list(anyString())(any(), any())).thenReturn(Future.successful(unOrderedCapabilityDetails))
-      when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
-      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(true)
-
-      capabilityDetailsService.retrieveCapabilitiesData("nino-for-empty-list").map { result =>
-        verify(mockCapabilitiesConnector, times(1)).list(anyString())(any(), any())
-        verify(mockCapabilityDetailsRules, times(unOrderedCapabilityDetails.size)).withinTaxYear(any())
-        verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
-        result mustBe orderedByDateCapabilityDetails
-      }
-    }
-  }
-
   "retrieveAllActivitiesData" must {
 
-    "return empty Seq if capabilitiesConnector returns empty Seq" in {
+    "return empty Activities if capabilitiesConnector returns None" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
-      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(null))
+      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(None))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(Seq.empty))
 
@@ -147,14 +77,14 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
         verify(mockCapabilityDetailsRules, never()).withinTaxYear(any())
         verify(mockCapabilityDetailsRules, never()).withinSixMonth(any())
 
-        result mustBe Activities(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+        result mustBe Activities(Seq.empty, None, Seq.empty, Seq.empty)
       }
     }
 
-    "return empty Seq if capabilityDetails does not pass the rules" in {
+    "return empty Activities if capabilityDetails does not pass the rules" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(Some(taxCodeChangeDetails)))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
@@ -169,17 +99,18 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
         verify(mockCapabilityDetailsRules, times(7)).withinTaxYear(any())
         verify(mockCapabilityDetailsRules, times(7)).withinSixMonth(any())
 
-        result mustBe Activities(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+        result mustBe Activities(Seq.empty, None, Seq.empty, Seq.empty)
       }
     }
 
-    "return ordered Seq of capabilityDetails if retrieved unorderedCapabilityDetails withinTaxYear" in {
+    "return ordered list of Activities if retrieved taxCodeChange withinTaxYear" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(Some(taxCodeChangeDetails)))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
+      when(mockCapabilityDetailsRules.withinSixMonth(any())).thenReturn(false)
 
       capabilityDetailsService.retrieveAllActivitiesData("nino-for-empty-list").map { result =>
         verify(mockCapabilitiesConnector, times(1)).taxCalcList(anyString())(any(), any())
@@ -197,7 +128,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return ordered list of Activities if retrieved unorderedCapabilityDetails withinSixMonth" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(Some(taxCodeChangeDetails)))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(false)
@@ -219,7 +150,7 @@ class CapabilityDetailsServiceSpec extends AsyncWordSpec with Matchers with Mock
     "return ordered list of Activities if retrieved unorderedCapabilityDetails both withinTaxYear and withinSixMonth" in {
 
       when(mockCapabilitiesConnector.taxCalcList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCalcDetails))
-      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(unOrderedTaxCodeChangeDetails))
+      when(mockCapabilitiesConnector.taxCodeChange(anyString())(any(), any())).thenReturn(Future.successful(Some(taxCodeChangeDetails)))
       when(mockCapabilitiesConnector.childBenefitList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedChildBenefitDetails))
       when(mockCapabilitiesConnector.payeIncomeList(anyString())(any(), any())).thenReturn(Future.successful(unOrderedPayeIncomeDetails))
       when(mockCapabilityDetailsRules.withinTaxYear(any())).thenReturn(true)
@@ -394,7 +325,7 @@ object CapabilityDetailsServiceSpec {
 
   )
 
-  val unOrderedTaxCodeChangeDetails: TaxCodeChangeObject =
+  val taxCodeChangeDetails: TaxCodeChangeObject =
     TaxCodeChangeObject(
       data = TaxCodeChangeData(
         current = TaxCodeChangeDetails(
@@ -408,14 +339,13 @@ object CapabilityDetailsServiceSpec {
     )
 
 
-  val orderedByDateTaxCodeChangeDetails: Seq[CapabilityDetails] = Seq(
+  val taxCodeChangeDetailsAsCapabilityDetails: CapabilityDetails =
     CapabilityDetails(
       nino = Nino(true, Some("GG012345C")),
       date = LocalDate.of(2023, 5, 21),
       descriptionContent = "Your tax code for Employer Name has changed",
       url = "www.tax.service.gov.uk/check-income-tax/tax-code-change/tax-code-comparison",
       activityHeading = "Latest Tax code change")
-  )
 
   val unOrderedChildBenefitDetails: Seq[CapabilityDetails] = Seq(
     CapabilityDetails(
@@ -512,9 +442,8 @@ object CapabilityDetailsServiceSpec {
   )
 
   val orderedActivities: Activities =
-    Activities(orderedByDateTaxCalcDetails,orderedByDateTaxCodeChangeDetails,orderedByDateChildBenefitDetails,orderedByDatePayeIncomeDetails)
+    Activities(orderedByDateTaxCalcDetails, Some(taxCodeChangeDetailsAsCapabilityDetails), orderedByDateChildBenefitDetails, orderedByDatePayeIncomeDetails)
 
-  val orderedActions =
-    Actions(orderedOverPayment)
+  val orderedActions: Actions = Actions(orderedOverPayment)
 
 }
