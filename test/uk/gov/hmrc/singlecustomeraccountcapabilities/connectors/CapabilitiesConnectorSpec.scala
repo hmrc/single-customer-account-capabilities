@@ -194,6 +194,22 @@ class CapabilitiesConnectorSpec extends AsyncWordSpec with Matchers with WireMoc
       }
     }
   }
+
+  "taxCodeChangeApi" must {
+    "return None with valid Nino" in {
+
+      server.stubFor(
+        get(urlEqualTo(taxCodeChangeApiUrl))
+          .willReturn(
+            notFound
+          )
+      )
+      capabilitiesConnector.taxCodeChangeApi(nino).map { response =>
+        response mustBe Seq.empty
+      }
+    }
+  }
+
   "childBenefitList" must {
     "return the child benefit data with valid Nino" in {
       val childBenefitResponseJson: JsArray = Json.arr(
@@ -499,6 +515,7 @@ object CapabilitiesConnectorSpec {
   private val capabilityDetailsUrl = s"/individuals/details/NINO/$nino"
   private val taxCalcUrl = s"/individuals/activities/tax-calc/NINO/$nino"
   private val taxCodeChangeUrl = s"/individuals/activities/tax-code-change/NINO/$nino"
+  private val taxCodeChangeApiUrl = s"/individuals/activities/tax-code-change-api/NINO/$nino"
   private val childBenefitUrl = s"/individuals/activities/child-benefit/NINO/$nino"
   private val payeIncomeUrl = s"/individuals/activities/paye-income/NINO/$nino"
   private val actionTaxCalcUrl = s"/individuals/actions/tax-calc/NINO/$nino"
